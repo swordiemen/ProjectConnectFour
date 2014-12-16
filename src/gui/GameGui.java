@@ -1,12 +1,15 @@
 package gui;
 
 import constants.Constants;
+import model.*;
 
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -19,13 +22,22 @@ import model.Game;
 
 public class GameGui extends JFrame implements ActionListener, Observer{
 	private static final long serialVersionUID = 1L;
-	private int row;
-	private int col;
-	
+	private int row = Constants.ROWS;
+	private int col = Constants.COLUMNS;
+	JPanel p = new JPanel(new GridLayout(row, col));
+	Player p1 = new Player("Henk");
+	Player p2 = new Player("Gozert");
+	Container c;
+	ArrayList<Player> playerList = new ArrayList<Player>();
+	JButton[] fields = new JButton[row * col];
+	GameController gc = new GameController(new Game(row, col, playerList));
+	//GameController-------------------------------------------------------------------------------------------------------------------------------
 	class GameController implements ActionListener {
 		private Game game;
 		
 		public GameController(Game g){
+			playerList.add(new Player("Henk"));
+			playerList.add(new Player("Gozert"));
 			row = game.getBoard().getRow();
 			col = game.getBoard().getCol();
 			
@@ -39,10 +51,12 @@ public class GameGui extends JFrame implements ActionListener, Observer{
 		public void actionPerformed(ActionEvent e) {
 			Object source = e.getSource();
 			for(int i = 0; i < row * col; i++){
+				System.out.println("Roflpantoffel");
 				if(fields[i].equals(source)){
 					try {
 						if(game.getBoard().deepCopy().addToCol(getCol(i), game.getCurrent())){
 							game.takeTurn(getCol(i));
+							fields[game.getBoard().getNextEntryInColumn(getCol(i))].setBackground(Constants.RED);
 						}
 						
 					} catch (FalseMoveException e1) {
@@ -58,23 +72,8 @@ public class GameGui extends JFrame implements ActionListener, Observer{
 		}
 	
 	}
+	//End game controller -------------------------------------------------------------------------------------------------------------------------------
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	JPanel p = new JPanel(new GridLayout(row, col));
-	Container c;
-	JButton[] fields = new JButton[row * col];
 	
 	
 	public GameGui(){
@@ -86,7 +85,6 @@ public class GameGui extends JFrame implements ActionListener, Observer{
 		for(int i = 0; i < row * col; i++){
 			JButton cur = fields[i];
 			cur = new JButton();
-			cur.addActionListener(this);
 			cur.setEnabled(true);
 			cur.setBackground(Constants.WHITE);
 			fields[i] = cur;
@@ -108,16 +106,10 @@ public class GameGui extends JFrame implements ActionListener, Observer{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-		for(int i = 0; i < row * col; i++){
-			if(source == fields[i]){
-				
-				fields[i].setBackground(Constants.RED);
-			}
-		}
 	}
 	
 	public static void main(String[] args){
-		new ClientGui();
+		new GameGui();
 	}
 
 	public static synchronized void run(){

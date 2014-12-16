@@ -73,8 +73,6 @@ public class Board {
 	 * @return result Whether the action succeeded.
 	 */
 	public boolean addToCol(int col, Mark m){
-		//op een schaal van 1 tot 10, hoe lelijk is dit? Werkt alleen voor een n*7 board...
-		//TODO shit fixen yo
 		boolean result = true;
 		int nextEntry = getNextEntryInColumn(col);
 		if(nextEntry == -1){
@@ -279,8 +277,15 @@ public class Board {
 	 * @return i The index
 	 */
 	public int getIndexByRowAndColumn(int r, int c){
-		//TODO volgens mij werkt dit niet
-		return ((row + 1) * 7) + c;
+		return (r * row) + c;
+	}
+	
+	public int getRowFromIndex(int i){
+		return i / 7;
+	}
+	
+	public int getColFromIndex(int i){
+		return i % 7;
 	}
 
 	public int getRow() {

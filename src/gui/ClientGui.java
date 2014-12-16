@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 
 public class ClientGui extends JFrame implements ActionListener, Observer{
 	final int row = Constants.ROWS;
-	final int col = Constants.ROWS;
+	final int col = Constants.COLUMNS;
 	JPanel p = new JPanel(new GridLayout(row, col));
 	Container c;
 	JButton[] fields = new JButton[row * col];
@@ -23,7 +23,7 @@ public class ClientGui extends JFrame implements ActionListener, Observer{
 	
 	public ClientGui(){
 		super("Connect Four client");
-		setBounds(100, 50, 800, 800);
+		setBounds(100, 50, 933, 800);
 		c = this.getContentPane();
 		c.add(p);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
