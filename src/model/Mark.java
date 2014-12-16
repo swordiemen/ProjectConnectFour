@@ -7,6 +7,10 @@ import constants.Constants;
 public enum Mark {
 	EMPTY, RED, YELLOW;
 
+	/**
+	 * Gives the next Mark. If this is empty, the next will always be empty. 
+	 * @return
+	 */
 	public Mark next(){
 		Mark mark = null;
 			switch(this){
@@ -15,7 +19,7 @@ public enum Mark {
 			case YELLOW:
 				mark = YELLOW;
 			default:
-				mark = RED;
+				mark = EMPTY;
 		}
 		return mark;
 	}
