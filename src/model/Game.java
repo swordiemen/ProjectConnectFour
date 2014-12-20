@@ -1,11 +1,13 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Random;
 
+import constants.Constants;
 import exceptions.FalseMoveException;
 
 public class Game extends Observable{
@@ -22,7 +24,7 @@ public class Game extends Observable{
 	// Constructors
 	
 	public Game(){
-		new Game(6, 7);
+		new Game(Constants.ROWS, Constants.COLUMNS);
 	}
 	
 	public Game(int r, int c){
@@ -32,6 +34,7 @@ public class Game extends Observable{
 	public Game(int r, int c, ArrayList<Player> argPlayerList){
 		board = new Board(r, c);
 		playerList = argPlayerList;
+		players = new HashMap<Mark, Player>();
 		current = Mark.RED;
 		isCopy = false;
 		rand = new Random();
@@ -40,6 +43,18 @@ public class Game extends Observable{
 
 	// Queries
 	
+	public Game(int row, int col, Player p1, Player p2) {
+		ArrayList<Player> pl = new ArrayList<Player>();
+		pl.add(p1);
+		pl.add(p2);
+		board = new Board(row, col);
+		players = new HashMap<Mark, Player>();
+		current = Mark.RED;
+		isCopy = false;
+		rand = new Random();
+		reset(pl);
+	}
+
 	public boolean isValidMove(int c) {
 		return board.deepCopy().addToCol(c, Mark.RED);
 	}
@@ -66,6 +81,13 @@ public class Game extends Observable{
 	
 	// Commands
 	private void reset(ArrayList<Player> argPlayerList) {
+		if(playerList != null){
+			playerList.clear();
+		}else{
+			playerList = new ArrayList<Player>();
+		}
+		playerList.add(argPlayerList.get(0));
+		playerList.add(argPlayerList.get(1));
 		current = Mark.RED;
 		board.reset();
 		players.clear();
@@ -93,6 +115,10 @@ public class Game extends Observable{
 		players.get(current).requestMove(this);
 		setChanged();
 		notifyObservers();
+	}
+
+	public void setBoard(Board b) {
+		board = b;
 	}
 	
 	

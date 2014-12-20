@@ -30,18 +30,17 @@ public class GameGui extends JFrame implements ActionListener, Observer{
 	Container c;
 	ArrayList<Player> playerList = new ArrayList<Player>();
 	JButton[] fields = new JButton[row * col];
-	GameController gc = new GameController(new Game(row, col, playerList));
 	//GameController-------------------------------------------------------------------------------------------------------------------------------
 	class GameController implements ActionListener {
 		private Game game;
 		
 		public GameController(Game g){
+			game = g;
 			playerList.add(new Player("Henk"));
 			playerList.add(new Player("Gozert"));
 			row = game.getBoard().getRow();
 			col = game.getBoard().getCol();
 			
-			game = g;
 			for(int i = 0; i < row * col; i++){
 				fields[i].addActionListener(this);
 			}
@@ -78,7 +77,7 @@ public class GameGui extends JFrame implements ActionListener, Observer{
 	
 	public GameGui(){
 		super("Connect Four client");
-		setBounds(100, 50, 800, 800);
+		setBounds(100, 50, 933, 800);
 		c = this.getContentPane();
 		c.add(p);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -90,8 +89,10 @@ public class GameGui extends JFrame implements ActionListener, Observer{
 			fields[i] = cur;
 			p.add(fields[i]);
 		}
-		setVisible(true);
+		GameController gc = new GameController(new Game(row, col, p1, p2));
 		
+		setVisible(true);
+
 		
 		
 	}
