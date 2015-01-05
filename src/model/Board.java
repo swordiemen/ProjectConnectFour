@@ -7,10 +7,10 @@ public class Board {
 	private Mark[] fields;
 
 	/**
-	 * Creates a new 6*7 board, whose fields are all empty.
+	 * Creates a new ROWS*COLUMNS(from Constants.java) board, whose fields are all empty.
 	 */
 	public Board(){
-		new Board(Constants.ROWS, Constants.COLUMNS);
+		this(Constants.ROWS, Constants.COLUMNS);
 	}
 
 	public Board(int r, int c){
@@ -351,6 +351,7 @@ public class Board {
 	 * @return board A copy of this board.
 	 */
 	public Board deepCopy(){
+		//TODO die goddamn constructors werkend maken als je een constructor in een constructor aanroept...
 		Board res = new Board();
 		for(int i = 0; i < row * col; i++){
 			res.setField(i, this.getField(i));
@@ -359,11 +360,11 @@ public class Board {
 	}
 
 	public int getRowByIndex(int i){
-		return i / 7;
+		return i / col;
 	}
 
 	public int getColByIndex(int i){
-		return i % 7;
+		return i % col;
 	}
 
 	public int getRow() {

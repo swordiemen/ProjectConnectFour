@@ -8,7 +8,7 @@ public class Player {
 	}
 	
 	public Player(){
-		new Player("The Unnamed");
+		this("The Unnamed");
 	}
 	
 	public String getName(){
@@ -20,6 +20,6 @@ public class Player {
 	}
 
 	public void requestMove(Game game) {
-		
+		//TODO github pls
 	}
 }

@@ -10,27 +10,27 @@ import java.util.Random;
 import constants.Constants;
 import exceptions.FalseMoveException;
 
-public class Game extends Observable{
+public class Game extends Observable {
 	//Instance variables
-	
+
 	private Board board;
 	private boolean isCopy;
 	private Map<Mark, Player> players;
 	private Mark current;
 	private List<Player> playerList;
-	private Random rand;
-	
-	
+	private Random rand = new Random();
+
+
 	// Constructors
-	
+
 	public Game(){
-		new Game(Constants.ROWS, Constants.COLUMNS);
+		this(Constants.ROWS, Constants.COLUMNS);
 	}
-	
+
 	public Game(int r, int c){
-		new Game(r, c, null);
+		this(r, c, null);
 	}
-	
+
 	public Game(int r, int c, ArrayList<Player> argPlayerList){
 		board = new Board(r, c);
 		playerList = argPlayerList;
@@ -38,49 +38,46 @@ public class Game extends Observable{
 		current = Mark.RED;
 		isCopy = false;
 		rand = new Random();
-		reset(argPlayerList);
+		if(argPlayerList != null){
+			reset(argPlayerList);
+		}
 	}
 
 	// Queries
-	
-	public Game(int row, int col, Player p1, Player p2) {
-		ArrayList<Player> pl = new ArrayList<Player>();
-		pl.add(p1);
-		pl.add(p2);
-		board = new Board(row, col);
-		players = new HashMap<Mark, Player>();
-		current = Mark.RED;
-		isCopy = false;
-		rand = new Random();
-		reset(pl);
+	/**
+	 * Checks if adding a disk to a certain column is valid. Returns false when the disk is:<br>
+	 * 1: put into a full column<br>
+	 * 2: put into a negative column<br>
+	 * 3: put into a column which exceeds the board's total columns
+	 * @param c The column the disk is going to be put in
+	 * @return b Whether the move is valid.
+	 */
+	public boolean isValidMove(int c) {
+		return  c < 0 || c >= Constants.COLUMNS || board.deepCopy().addToCol(c, Mark.RED);
 	}
 
-	public boolean isValidMove(int c) {
-		return board.deepCopy().addToCol(c, Mark.RED);
-	}
-	
-	public void setIsCopy(boolean b){
-		isCopy = b;
-	}
-	
 	public Mark getCurrent(){
 		return current;
 	}
-	
+
 	public Board getBoard(){
 		return board;
 	}
-	
+
 	public Mark getWinner(){
 		return board.getWinner();
 	}
-	
+
 	public Map<Mark, Player> getPlayers(){
 		return players;
 	}
 	
+	public List<Player> getPlayerList(){
+		return playerList;
+	}
+
 	// Commands
-	private void reset(ArrayList<Player> argPlayerList) {
+	public void reset(ArrayList<Player> argPlayerList) {
 		if(playerList != null){
 			playerList.clear();
 		}else{
@@ -89,28 +86,36 @@ public class Game extends Observable{
 		playerList.add(argPlayerList.get(0));
 		playerList.add(argPlayerList.get(1));
 		current = Mark.RED;
+		board = new Board(Constants.ROWS, Constants.COLUMNS);
+
 		board.reset();
+		players = new HashMap<Mark, Player>();
 		players.clear();
 		int randomNumber = (int) rand.nextDouble() * 2;
 		players.put(Mark.RED, argPlayerList.get(randomNumber));
-		players.put(Mark.RED, argPlayerList.get((randomNumber + 1) % 2));
+		players.put(Mark.YELLOW, argPlayerList.get((randomNumber + 1) % 2));
 		setChanged();
 		notifyObservers();
 	}
-	
+
 	public void takeTurn(int c) throws FalseMoveException{
 		if(!isValidMove(c)){
-			throw new FalseMoveException("Je kunt geen disc in een volle rij gooien.");
+			throw new FalseMoveException("Je kunt geen disc in een volle rij gooien. Of je gooit mis. ha.");
 		}
 		board.addToCol(c, current);
 		current = current.next();
+		
 		if(!isCopy && !board.isGameOver()){
 			players.get(current).requestMove(this);
 		}		
 		setChanged();
 		notifyObservers();
 	}
-	
+
+	public void setIsCopy(boolean b){
+		isCopy = b;
+	}
+
 	public void start(){
 		players.get(current).requestMove(this);
 		setChanged();
@@ -120,10 +125,22 @@ public class Game extends Observable{
 	public void setBoard(Board b) {
 		board = b;
 	}
-	
-	
-	
-	
-	
-	
+
+	public Mark getField(int i) {
+		return board.getField(i);
+	}
+
+	public boolean isEmpty(int i) {
+		return board.isEmpty(i);
+	}
+
+	public boolean isGameOver() {
+		return board.isGameOver();
+	}
+
+
+
+
+
+
 }

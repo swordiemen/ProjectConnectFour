@@ -12,31 +12,51 @@ public enum Mark {
 	 * @return
 	 */
 	public Mark next(){
-		Mark mark = null;
-			switch(this){
-			case  RED:
-				mark = RED;
-			case YELLOW:
-				mark = YELLOW;
-			default:
-				mark = EMPTY;
+//		//TODO fix
+//		Mark mark = this;
+//		//System.out.println(this.toString() + "is het");
+//		switch(mark){
+//			case RED:
+//				mark = YELLOW;
+//			case YELLOW:
+//				mark = RED;
+//			default:
+//				//mark = EMPTY;
+//		}
+//		return mark;
+		Mark mark = this;
+		if(mark == RED){
+			mark = YELLOW;
+		}else if(mark == YELLOW){
+			mark = RED;
+		}else{
+			mark = EMPTY;
 		}
 		return mark;
 	}
-	
+
 	public Color toColor(){
 		Color color = null;
-		switch(this){
-		case RED:
+		//TODO: make it a switch
+//		switch(this){
+//		case RED:
+//			color = Constants.RED;
+//		case YELLOW:
+//			color = Constants.YELLOW;
+//		default:
+//			color = Constants.RED;
+//		}
+//		return color;
+		if(this == RED){
 			color = Constants.RED;
-		case YELLOW:
+		}else if(this == YELLOW){
 			color = Constants.YELLOW;
-		default:
+		}else{
 			color = Constants.WHITE;
-		return color;
 		}
+		return color;
 	}
-	
+
 	public Mark getMarkByString(String s){
 		Mark res = null;
 		if(s.equals("RED") || s.equals("red") || s.equals("Red")){
