@@ -13,15 +13,15 @@ public enum Mark {
 	 */
 	public Mark next(){
 //		//TODO fix
-//		Mark mark = this;
+//		Mark mark = null;
 //		//System.out.println(this.toString() + "is het");
-//		switch(mark){
+//		switch(this){
 //			case RED:
 //				mark = YELLOW;
 //			case YELLOW:
 //				mark = RED;
 //			default:
-//				//mark = EMPTY;
+//				mark = EMPTY;
 //		}
 //		return mark;
 		Mark mark = this;
@@ -44,7 +44,7 @@ public enum Mark {
 //		case YELLOW:
 //			color = Constants.YELLOW;
 //		default:
-//			color = Constants.RED;
+//			color = Constants.EMPTY;
 //		}
 //		return color;
 		if(this == RED){

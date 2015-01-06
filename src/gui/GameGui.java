@@ -20,14 +20,14 @@ public class GameGui extends Container implements Observer, ActionListener {
 	private static final long serialVersionUID = 1L;
 	private final int ROWS = Constants.ROWS;
 	private final int COLUMNS = Constants.COLUMNS;
-	Player p1 = new Player("Henk");
-	Player p2 = new Player("Gozert");
 	ArrayList<Player> playerList = new ArrayList<Player>();
 	JButton[] fields;
 	JButton quitButton;
 	JButton restartButton;
 	JLabel turnLabel;
 	GameController gc;
+	Mark ownMark;
+	
 	//GameController-------------------------------------------------------------------------------------------------------------------------------
 	class GameController implements ActionListener {
 		private Game game;
@@ -43,29 +43,38 @@ public class GameGui extends Container implements Observer, ActionListener {
 			}
 			
 		}
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Object source = e.getSource();
 			for(int i = 0; i < ROWS * COLUMNS; i++){
 				if(fields[i].equals(source)){
 					try {
-						if(game.getBoard().deepCopy().addToCol(getCol(i), game.getCurrent())){
+						if(game.getBoard().deepCopy().addToCol(getCol(i), game.getCurrent())){ // Superfluous?
 							game.takeTurn(getCol(i));
-							//fields[game.getBoard().getNextEntryInColumn(getCol(i))+Constants.COLUMNS].setBackground(game.getCurrent().toColor());
 						}
 						
 					} catch (FalseMoveException e1) {
-						// TODO Auto-generated catch block
+						// Should never happen, as the client doesn't allow invalid moves.
 						e1.printStackTrace();
 					}
 				}
 			}
 		}
 	
+		/**
+		 * Returns the column by a given index.
+		 * @param i The index.
+		 * @return c The column of the index.
+		 */
 		public int getCol(int i){
 			return i % COLUMNS;
 		}
 		
+		/**
+		 * Returns the game of this controller.
+		 * @return game The game.
+		 */
 		public Game getGame(){
 			return game;
 		}
@@ -74,28 +83,44 @@ public class GameGui extends Container implements Observer, ActionListener {
 	//End game controller -------------------------------------------------------------------------------------------------------------------------------
 	
 	
-	
+	/**
+	 * Creates a connect-four gui for offline play.
+	 * @param g The game the gui is created with.
+	 */
 	public GameGui(Game g){
 		setUp();
-//		setBounds(100, 50, 933, 800);
-//		this.add(p);
-//		for(int i = 0; i < row * col; i++){
-//			JButton cur = fields[i];
-//			cur = new JButton();
-//			cur.setEnabled(true);
-//			cur.setBackground(Constants.WHITE);
-//			fields[i] = cur;
-//			p.add(fields[i]);
-//		}
-//		
-//		setVisible(true);
 		gc = new GameController(g);
 	}
 	
+	/**
+	 * Creates a connect-four gui for online play (board is only enabled if it is your turn).
+	 * @param g The <code>Game</code> the gui is created with.
+	 * @param m The <code>Mark</code> which belongs to the player.
+	 */
+	public GameGui(Game g, Mark m){
+		this(g);
+		ownMark = m;
+	}
+	
+	/**
+	 * Returns the mark of the player (client).
+	 * @return
+	 */
+	public Mark getOwnMark(){
+		return ownMark;
+	}
+	
+	/**
+	 * Returns the <code>GameController</code> of this <code>gameGui</code>.
+	 * @return gc The GameController.
+	 */
 	public GameController getGameController(){
 		return gc;
 	}
 	
+	/**
+	 * Sets up the gui of this <code>GameGui</code>.
+	 */
 	public void setUp(){
 		fields = new JButton[ROWS * COLUMNS];
 		turnLabel = new JLabel("It is red's turn.");
@@ -122,10 +147,10 @@ public class GameGui extends Container implements Observer, ActionListener {
 	}
 	
 	@Override
-	public void update(Observable arg0, Object arg1) {
-		Game g = (Game) arg0;
+	public void update(Observable o, Object arg0) {
+		Game g = (Game) o;
 		for(int i = 0; i < ROWS * COLUMNS; i++){
-			fields[i].setEnabled(g.isEmpty(i) && !g.isGameOver());
+			fields[i].setEnabled(g.isEmpty(i) && !g.isGameOver() && isMyTurn());
 			fields[i].setBackground(g.getField(i).toColor());
 		}
 		if(g.isGameOver()){
@@ -154,6 +179,10 @@ public class GameGui extends Container implements Observer, ActionListener {
 		
 	}
 	
+	/**
+	 * Returns the list of players.
+	 * @return <code>playerList</code> The list of players.
+	 */
 	public ArrayList<Player> getPlayerList(){
 		return playerList;
 	}
@@ -163,7 +192,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 	}
 
 	public static synchronized void run(){
-		//TODO
+		//TODO?
 	}
 
 	@Override
@@ -175,6 +204,10 @@ public class GameGui extends Container implements Observer, ActionListener {
 		}else if(restartButton.equals(source)){
 			gc.getGame().reset(playerList);
 		}
+	}
+	
+	public boolean isMyTurn(){
+		return getOwnMark() == gc.getGame().getCurrent() || getOwnMark() == null;
 	}
 
 }

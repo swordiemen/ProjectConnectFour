@@ -11,5 +11,8 @@ public class Constants {
 	public static final Color WHITE = Color.WHITE;
 	public static final Color RED = Color.RED;
 	public static final Color YELLOW = Color.YELLOW;
+	class Protocol {
+		public static final String SEND_TURN = "sendTurn";
+	}
 	
 }

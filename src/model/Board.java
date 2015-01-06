@@ -63,7 +63,7 @@ public class Board {
 	 * @return i The index of the field.
 	 */
 	public int index(int r, int c){
-		if(r > row || c > col){
+		if(r > row || c > col || c < 0 || r < 0){
 			return -1;
 		}
 		return (r * col) + c;
@@ -102,7 +102,7 @@ public class Board {
 	 */
 	public boolean isFull() {
 		boolean result = true;
-		for (int i = 0; i < getFields().length; i++) {
+		for (int i = 0; i < col; i++) {
 			if (isEmpty(i)) {
 				result = false;
 			}
@@ -373,5 +373,5 @@ public class Board {
 
 	public int getCol() {
 		return col;
-	}
+	}	
 }

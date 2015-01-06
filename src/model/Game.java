@@ -20,13 +20,17 @@ public class Game extends Observable {
 	private List<Player> playerList;
 	private Random rand = new Random();
 
-
+	
 	// Constructors
 
 	public Game(){
 		this(Constants.ROWS, Constants.COLUMNS);
 	}
 
+	public Game(ArrayList<Player> argPlayerList){
+		this(Constants.ROWS, Constants.COLUMNS, argPlayerList);
+	}
+	
 	public Game(int r, int c){
 		this(r, c, null);
 	}
@@ -52,7 +56,7 @@ public class Game extends Observable {
 	 * @param c The column the disk is going to be put in
 	 * @return b Whether the move is valid.
 	 */
-	public boolean isValidMove(int c) {
+	public boolean isIllegalMove(int c) {
 		return  c < 0 || c >= Constants.COLUMNS || board.deepCopy().addToCol(c, Mark.RED);
 	}
 
@@ -61,7 +65,7 @@ public class Game extends Observable {
 	}
 
 	public Board getBoard(){
-		return board;
+		return board;		
 	}
 
 	public Mark getWinner(){
@@ -99,7 +103,7 @@ public class Game extends Observable {
 	}
 
 	public void takeTurn(int c) throws FalseMoveException{
-		if(!isValidMove(c)){
+		if(isIllegalMove(c)){
 			throw new FalseMoveException("Je kunt geen disc in een volle rij gooien. Of je gooit mis. ha.");
 		}
 		board.addToCol(c, current);
@@ -137,10 +141,4 @@ public class Game extends Observable {
 	public boolean isGameOver() {
 		return board.isGameOver();
 	}
-
-
-
-
-
-
 }
