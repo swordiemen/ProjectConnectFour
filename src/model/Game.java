@@ -107,7 +107,7 @@ public class Game extends Observable {
 			throw new FalseMoveException("Je kunt geen disc in een volle rij gooien. Of je gooit mis. ha.");
 		}
 		board.addToCol(c, current);
-		current = current.next();
+		current = Mark.next(current);
 		
 		if(!isCopy && !board.isGameOver()){
 			players.get(current).requestMove(this);

@@ -11,28 +11,20 @@ public enum Mark {
 	 * Gives the next Mark. If this is empty, the next will always be empty. 
 	 * @return
 	 */
-	public Mark next(){
-//		//TODO fix
-//		Mark mark = null;
-//		//System.out.println(this.toString() + "is het");
-//		switch(this){
-//			case RED:
-//				mark = YELLOW;
-//			case YELLOW:
-//				mark = RED;
-//			default:
-//				mark = EMPTY;
-//		}
-//		return mark;
-		Mark mark = this;
-		if(mark == RED){
-			mark = YELLOW;
-		}else if(mark == YELLOW){
-			mark = RED;
-		}else{
-			mark = EMPTY;
+	public static Mark next(Mark current){
+		//TODO fix
+		Mark mark = null;
+		//System.out.println(this.toString() + "is het");
+		switch(current){
+			case RED:
+				mark = YELLOW;
+			case YELLOW:
+				mark = RED;
+			default:
+				mark = EMPTY;
 		}
 		return mark;
+		
 	}
 
 	public Color toColor(){
