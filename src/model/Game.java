@@ -57,7 +57,7 @@ public class Game extends Observable {
 	 * @return b Whether the move is valid.
 	 */
 	public boolean isIllegalMove(int c) {
-		return  c < 0 || c >= Constants.COLUMNS || board.deepCopy().addToCol(c, Mark.RED);
+		return  c < 0 || c >= Constants.COLUMNS || !board.deepCopy().addToCol(c, Mark.RED);
 	}
 
 	public Mark getCurrent(){
@@ -103,8 +103,9 @@ public class Game extends Observable {
 	}
 
 	public void takeTurn(int c) throws FalseMoveException{
+		System.out.println("hoezo gebruik ik de oude shit" + c);
 		if(isIllegalMove(c)){
-			throw new FalseMoveException("Je kunt geen disc in een volle rij gooien. Of je gooit mis. ha.");
+			throw new FalseMoveException("Je kunt geen disc in een volle rij gooien. Of je gooit mis. ha. " + c);
 		}
 		board.addToCol(c, current);
 		current = Mark.next(current);
