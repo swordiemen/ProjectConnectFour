@@ -2,7 +2,7 @@ package model;
 
 public class HumanPlayer extends Player {
 	public HumanPlayer(){
-		super();
+		super("The unnamed");
 	}
 	
 	public HumanPlayer(String s){

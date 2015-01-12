@@ -57,7 +57,7 @@ public class Game extends Observable {
 	 * @return b Whether the move is valid.
 	 */
 	public boolean isIllegalMove(int c) {
-		return  c < 0 || c >= Constants.COLUMNS || board.deepCopy().addToCol(c, Mark.RED);
+		return  c < 0 || c >= Constants.COLUMNS || board.isFullColumn(c);
 	}
 
 	public Mark getCurrent(){
@@ -107,7 +107,7 @@ public class Game extends Observable {
 			throw new FalseMoveException("Je kunt geen disc in een volle rij gooien. Of je gooit mis. ha.");
 		}
 		board.addToCol(c, current);
-		current = Mark.next(current);
+		current = current.next();
 		
 		if(!isCopy && !board.isGameOver()){
 			players.get(current).requestMove(this);

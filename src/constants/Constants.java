@@ -10,7 +10,9 @@ public interface Constants {
 	public static final String[] COLOURS = {"Yellow", "Red"};
 	public static final Color WHITE = Color.WHITE;
 	public static final Color RED = Color.RED;
+	public static final Color DARK_RED = new Color(186, 32, 30);
 	public static final Color YELLOW = Color.YELLOW;
+	public static final Color DARK_YELLOW = new Color(148, 148, 15);
 	interface Protocol {		
 		//alles wat achter de string zit zijn eventuele argumenten
 		//client en server
