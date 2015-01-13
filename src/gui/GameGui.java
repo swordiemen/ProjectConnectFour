@@ -51,7 +51,6 @@ public class GameGui extends Container implements Observer, ActionListener {
 				if(fields[i].equals(source)){
 					try {
 						if(game.getBoard().deepCopy().addToCol(getCol(i), game.getCurrent())){ // Superfluous?
-							System.out.println("Number" + i);
 							game.takeTurn(getCol(i));
 						}
 						

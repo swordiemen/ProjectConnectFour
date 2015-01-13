@@ -103,7 +103,6 @@ public class Game extends Observable {
 	}
 
 	public void takeTurn(int c) throws FalseMoveException{
-		System.out.println("hoezo gebruik ik de oude shit" + c);
 		if(isIllegalMove(c)){
 			throw new FalseMoveException("Je kunt geen disc in een volle rij gooien. Of je gooit mis. ha. " + c);
 		}
@@ -111,6 +110,7 @@ public class Game extends Observable {
 		current = Mark.next(current);
 		
 		if(!isCopy && !board.isGameOver()){
+			System.out.println(current.name());
 			players.get(current).requestMove(this);
 		}		
 		setChanged();

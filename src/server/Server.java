@@ -58,7 +58,6 @@ public class Server implements Runnable {
 			// ServerView view = new ServerView();
 			// view.illegalPort();
 		} catch (IOException e) {
-			shutDown();
 		}
 		while (!shutdown) {
 			try {
@@ -69,7 +68,6 @@ public class Server implements Runnable {
 				(new Thread(peer)).start();
 
 			} catch (Exception e) {
-				shutDown();
 			}
 		}
 	}
@@ -84,9 +82,7 @@ public class Server implements Runnable {
 	// @ requires peers != null;
 	// @ ensures getServerGameList().contains(new ServerGame(peers));
 
-	public void startNewGame(ArrayList<Peer> peers) {
-		ArrayList<Player> playerList = new ArrayList<Player>();
-		
+	public void startNewGame(ArrayList<Peer> peers) {		
 		ServerGame game = new ServerGame(peers);
 		serverGameList.add(game);
 	}
@@ -116,20 +112,6 @@ public class Server implements Runnable {
 	/**
 	 * Closes the ServerSocket and sets legalPort to 'false'
 	 */
-	public void shutDown() {
-		try {
-			System.out.println(peerList.size());
-			for (int i = 0; i < peerList.size(); i++) {
-				peerList.get(i).shutDown();
-			}
-			if (listenSocket != null) {
-				listenSocket.close();
-			}
-			shutdown = true;
-		} catch (IOException e) {
-			shutDown();
-		}
-	}
 
 	public static void main(String[] args) {
 		Server a = new Server();

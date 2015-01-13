@@ -15,13 +15,18 @@ public enum Mark {
 		//TODO fix
 		Mark mark = null;
 		//System.out.println(this.toString() + "is het");
-		switch(current){
-			case RED:
-				mark = YELLOW;
-			case YELLOW:
-				mark = RED;
-			default:
-				mark = EMPTY;
+//		switch(current){
+//			case RED:
+//				mark = YELLOW;
+//			case YELLOW:
+//				mark = RED;
+//			default:
+//				mark = EMPTY;
+//		}
+		if(current.equals(Mark.RED)){
+			mark = Mark.YELLOW;
+		}else if(current.equals(Mark.YELLOW)){
+			mark = Mark.RED;
 		}
 		return mark;
 		

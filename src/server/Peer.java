@@ -48,17 +48,7 @@ public class Peer implements Runnable {
 		state = "START";
 
 	}
-	public void illegalMove(){
-		try {
-			out.write("illegalmove\n");
-			out.flush();
-			System.out.println("illegalmove");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
-	}
 
 	/**
 	 * Reads strings of the stream of the socket-connection and writes the
@@ -72,18 +62,17 @@ public class Peer implements Runnable {
 				output = in.readLine();
 				System.out.println(output);
 				splitOutput = output.split(" ");
-				if (splitOutput[0].equals("login")) {
+				if (splitOutput[0].equals(Constants.Protocol.SEND_HELLO)) {
 					this.name = splitOutput[1];
-					out.write(Constants.Protocol.SEND_HELLO + /*TODO*/  "\n");
+					out.write(Constants.Protocol.SEND_HELLO + " " + name +  "\n");
 					out.flush();
 					state = "LOBBY";
 				} else {
 					out.write(Constants.Protocol.SEND_ERROR + " InvalidCommand" +  "\n");
 					out.flush();
 				}
-			} catch (Exception e) {	
-				shutDown();
-
+			} catch (IOException e) {	
+				e.printStackTrace();
 			}
 
 		}
@@ -92,38 +81,30 @@ public class Peer implements Runnable {
 				output = in.readLine();
 				System.out.println(output);
 				splitOutput = output.split(" ");
-				if (splitOutput[0].equals("play")) {
+				if (splitOutput[0].equals(Constants.Protocol.SEND_PLAY)) {
 					server.addPlayer(this);
 				} 
 			}
 			catch (Exception e) {
 				e.printStackTrace();
-				shutDown();
 			}
 		}
 		while (state.equals("ingame")) {
 			try {
 				output = in.readLine();
+				System.out.println(output + " inGame");
 				splitOutput = output.split(" ");
-				if(yourTurn){
-					if (splitOutput[0].equals(Constants.Protocol.SEND_MOVE)) {
-						game.takeTurn(Integer.parseInt(splitOutput[1]));
-						yourTurn=false;
-					}
-				}else{
-					out.write("not your turn\n");
-					out.flush();
+				if (splitOutput[0].equals(Constants.Protocol.SEND_MOVE)) {
+					game.takeTurn(Integer.parseInt(splitOutput[1]));
+					System.out.println("Send_Move Gelezen");
 				}
-				if (splitOutput[0].equals("gameOver")) {
-					System.out.println("You got rekt");
+				if (splitOutput[0].equals(Constants.Protocol.SEND_QUIT)) {
+					game.endGame(this);
 				}
 			} catch (Exception e) {
 				//e.printStackTrace();
-				shutDown();
 			}
 		}
-		System.out.println("test");
-
 	}
 
 	/**
@@ -132,16 +113,12 @@ public class Peer implements Runnable {
 	 */
 	//@ requires x >= 0 && x < 8;
 	//@ requires y >= 0 && y < 9;
-	public void sendMove(int x, int y) {
+	public void sendMove(int collumn) {
 		try {
-			out.write("update " + game.getPerson().getName() + " " + x + " "
-					+ y + "\n");
+			out.write(Constants.Protocol.MAKE_MOVE + " " + collumn + "\n");
 			out.flush();
-			System.out.println("update " + game.getPerson().getName() + " " + x + " "
-					+ y);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			shutDown();
 
 		}
 	}
@@ -158,7 +135,6 @@ public class Peer implements Runnable {
 			System.out.println("yourTurn");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			shutDown();
 		}
 	}
 
@@ -179,40 +155,19 @@ public class Peer implements Runnable {
 
 	public ServerGame getGame() {
 		return this.game;
-	}
-
-	/**
-	 * writes gameover to bufferedReader out
-	 */
-	public void done(){
-		try {
-			out.write("gameover"+"\n");
-			out.flush();
-			System.out.println("gameover");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+	}	
+	public void quit(Peer p){
+		try{
+			if(this.equals(p)){
+				out.write(Constants.Protocol.SEND_GAME_OVER + " " + false + " " + true + "\n" );
+				out.flush();
+			}
+			
+		}catch(IOException e){
 			e.printStackTrace();
 		}
-
 	}
-
-	/**
-	 * Closes the connection, the sockets will be terminated
-	 */
-	public void shutDown() {
-		try {
-			System.out.println("ShutDown");
-			this.state="shutdown";
-			this.game.ClientLeave();
-			in.close();
-			out.close();
-			sock.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-
+	
 	/** returns name of the peer object */
 	public String getName() {
 		return name;
@@ -224,7 +179,7 @@ public class Peer implements Runnable {
 	 */
 
 	public void startGame(ArrayList<Peer> peers) {
-		this.state = "GAME";
+		this.state = "ingame";
 		try {
 			out.write(Constants.Protocol.MAKE_GAME + " " + peers.get(0).getName() + " "
 					+ peers.get(1).getName() + "\n");
@@ -233,6 +188,7 @@ public class Peer implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println(state);
 	}
 }
 
