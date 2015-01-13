@@ -5,6 +5,7 @@ import constants.Constants;
 public class Board {
 	private int row, col;
 	private Mark[] fields;
+	private int[] winningFields;
 
 	/**
 	 * Creates a new ROWS*COLUMNS(from Constants.java) board, whose fields are all empty.
@@ -17,6 +18,7 @@ public class Board {
 		row = r;
 		col = c;
 		fields = new Mark[row * col];
+		winningFields = new int[Constants.WIN_DISCS];
 		reset();
 	}
 
@@ -161,27 +163,11 @@ public class Board {
 					count = 0;
 				}
 				if(count >= Constants.WIN_DISCS){
+					for(int i = Constants.WIN_DISCS - 1; i >= 0; i--){
+						winningFields[i] = index(r, c);
+						c--;
+					}
 					return true;
-				}
-			}
-		}
-		return res;
-	}
-	
-	public int[] getRowFields(Mark m) {
-		int[] res = new int[4];
-		for(int r = 0; r < row; r++){
-			int count = 0;
-			for(int c = 0; c < col; c++){
-				if(getField(r, c).equals(m)){
-					res[count] = index(r, c);
-					count++;
-				}else{
-					res = new int[4];
-					count = 0;
-				}
-				if(count >= Constants.WIN_DISCS){
-					return res;
 				}
 			}
 		}
@@ -204,27 +190,11 @@ public class Board {
 					count = 0;
 				}
 				if(count >= Constants.WIN_DISCS){
+					for(int i = Constants.WIN_DISCS - 1; i >= 0; i--){
+						winningFields[i] = index(r, c);
+						r--;
+					}
 					return true;
-				}
-			}
-		}
-		return res;
-	}
-	
-	public int[] getColFields(Mark m) {
-		int[] res = new int[4];
-		for(int c = 0; c < col; c++){
-			int count = 0;
-			for(int r = 0; r < row; r++){
-				if(getField(r, c) == m){
-					res[count] = index(r, c);
-					count++;
-				}else{
-					res = new int[4];
-					count = 0;
-				}
-				if(count >= Constants.WIN_DISCS){
-					return res;
 				}
 			}
 		}
@@ -254,28 +224,6 @@ public class Board {
 		return false;
 	}
 	
-	public int[] getDiagonalFields(Mark m) {
-		//TODO optimalize by using WIN_DISCS to limit the amount of checking that has to be done.
-		//when you need 4 discs to win (default), there's no need to check
-		//the first 3 beginning rows if there's an ascending diagonal.
-		for(int c = 0; c <= col - Constants.WIN_DISCS; c++){ //checks the top and bottom row for diagonals.
-			if(hasDiagonalDescending(0, c, m)){
-				return getDiagonalDescendingFields(0, c, m);
-			}else if(hasDiagonalAscending(row - 1, c, m)){
-				return getDiagonalAscendingFields(row - 1, c, m);
-			}
-		}
-		
-		for(int r = 0; r < row; r++){ // checks the first column for diagonals. Together with ^, this should cover the whole field.
-			if(hasDiagonalAscending(r, 0, m)){
-				return getDiagonalAscendingFields(r, 0, m);
-			}else if(hasDiagonalDescending(r, 0, m)){
-				return getDiagonalDescendingFields(r, 0, m);
-			}
-		}
-		return new int[4];
-	}
-
 	/**
 	 * Checks if a Mark m has 4 in a row on a a diagonal which goes downwards from point r, c. 
 	 * @param r The row to start checking on.
@@ -306,46 +254,17 @@ public class Board {
 			}else{
 				count = 0;
 			}
-			ci++;
 			if(count >= Constants.WIN_DISCS){
+				for(int i = Constants.WIN_DISCS - 1; i >= 0; i--){
+					winningFields[i] = index(ri, ci);
+					ri--;
+					ci--;
+				}
 				return true;
 			}
+			ci++;
 		}
 		return false;
-	}
-	
-	public int[] getDiagonalDescendingFields(int r, int c, Mark m){
-		/*the following cases shouldn't happen, but will simply return false if it somehow still happens.
-		 *decided not to throw a IndexOutOfBoundsException, as the following will most likely only occur
-		 *when dealing with a off-by-one error, so the program shouldn't have any trouble continuing after this point.
-		 **/
-		int[] res = new int[4];
-		if(r < 0 || r >= row){
-			System.err.println("The specified row " + r + " is invalid.");
-			return res;
-		}else if(c < 0 || r >= col){
-			System.err.println("The specified column " + c + " is invalid.");
-			return res;
-		}
-		int ci = c; //column iterator
-		int count = 0; //keeps track of number of successive Marks.
-		for(int ri = r; r < row; ri++){ //row iterator
-			if(ci >= col || ri >= row){
-				break; //we've reached the end of the diagonal.
-			}
-			if(getField(ri, ci).equals(m)){
-				res[count] = index(ri, ci);
-				count++;
-			}else{
-				res = new int[4];
-				count = 0;
-			}
-			ci++;
-			if(count >= Constants.WIN_DISCS){
-				return res;
-			}
-		}
-		return res;
 	}
 
 	/**
@@ -374,44 +293,19 @@ public class Board {
 			}else{
 				count = 0;
 			}
-			ci++;
 			if(count >= Constants.WIN_DISCS){
+				for(int i = Constants.WIN_DISCS - 1; i >= 0; i--){
+					winningFields[i] = index(ri, ci);
+					ri++;
+					ci--;
+				}
 				return true;
 			}
+			ci++;
 		}
 		return false;
 	}
 	
-	public int[] getDiagonalAscendingFields(int r, int c, Mark m){
-		int[] res = new int[4];
-		if(r < 0 || r >= row){
-			System.err.println("The specified row " + r + " is invalid.");
-			return res;
-		}else if(c < 0 || r >= col){
-			System.err.println("The specified column " + c + " is invalid.");
-			return res;
-		}
-		int ci = c; //column iterator
-		int count = 0;
-		for(int ri = r; r > 0; ri--){
-			if(ci >= col || ri < 0){
-				break; //we've reached the end of our diagonal.
-			}
-			if(getField(ri, ci).equals(m)){
-				res[count] = index(ri, ci);
-				count++;
-			}else{
-				res = new int[4];
-				count = 0;
-			}
-			ci++;
-			if(count >= Constants.WIN_DISCS){
-				return res;
-			}
-		}
-		return res;
-	}
-
 	/**
 	 * Returns the Mark at field i.
 	 * @param i The field where you want the info from.
@@ -423,25 +317,10 @@ public class Board {
 	
 	/**
 	 * Gets the winning fields of a game. Method should not be used if there is no winner.
-	 * @return result The 4 winning fields of the winner.
+	 * @return result The winning fields of the winner.
 	 */
 	public int[] getWinFields(){
-		int[] result = new int[4];
-		if(getWinner() == null){
-			for(int i = 0; i < 4; i++){
-				result[i] = 0;
-			}
-			return result;
-		}
-		Mark winner = getWinner();
-		if(hasRow(winner)){
-			result = getRowFields(winner);
-		}else if(hasCol(winner)){
-			result = getColFields(winner);
-		}else{
-			result = getDiagonalFields(winner);
-		}
-		return result;
+		return winningFields;
 	}
 
 	/**
