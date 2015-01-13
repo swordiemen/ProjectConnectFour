@@ -11,24 +11,16 @@ public enum Mark {
 	 * Gives the next Mark. If this is empty, the next will always be empty. 
 	 * @return
 	 */
-	public static Mark next(Mark current){
-		//TODO fix
-		Mark mark = null;
-		//System.out.println(this.toString() + "is het");
-//		switch(current){
-//			case RED:
-//				mark = YELLOW;
-//			case YELLOW:
-//				mark = RED;
-//			default:
-//				mark = EMPTY;
-//		}
-		if(current.equals(Mark.RED)){
-			mark = Mark.YELLOW;
-		}else if(current.equals(Mark.YELLOW)){
-			mark = Mark.RED;
+	public Mark next(){
+		Mark res;
+		if(this == RED){
+			res = YELLOW;
+		}else if(this == YELLOW){
+			res = RED;
+		}else{
+			res = EMPTY;
 		}
-		return mark;
+		return res;
 		
 	}
 
@@ -64,5 +56,9 @@ public enum Mark {
 			res = EMPTY;
 		}
 		return res;
+	}
+	
+	public String toString(){
+		return super.toString().toLowerCase();
 	}
 }

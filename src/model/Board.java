@@ -5,6 +5,7 @@ import constants.Constants;
 public class Board {
 	private int row, col;
 	private Mark[] fields;
+	private int[] winningFields;
 
 	/**
 	 * Creates a new ROWS*COLUMNS(from Constants.java) board, whose fields are all empty.
@@ -17,6 +18,7 @@ public class Board {
 		row = r;
 		col = c;
 		fields = new Mark[row * col];
+		winningFields = new int[Constants.WIN_DISCS];
 		reset();
 	}
 
@@ -75,15 +77,11 @@ public class Board {
 	 * @param m The Mark of the inserted disc.
 	 * @return result Whether the action succeeded.
 	 */
-	public boolean addToCol(int col, Mark m){
-		boolean result = true;
+	public void addToCol(int col, Mark m){
 		int nextEntry = getNextEntryInColumn(col);
-		if(nextEntry == -1){
-			result = false;
-		}else{
+		if(nextEntry != -1){
 			setField(nextEntry, m);
 		}
-		return result;
 	}
 
 	public int getNextEntryInColumn(int c){
@@ -165,6 +163,10 @@ public class Board {
 					count = 0;
 				}
 				if(count >= Constants.WIN_DISCS){
+					for(int i = Constants.WIN_DISCS - 1; i >= 0; i--){
+						winningFields[i] = index(r, c);
+						c--;
+					}
 					return true;
 				}
 			}
@@ -188,6 +190,10 @@ public class Board {
 					count = 0;
 				}
 				if(count >= Constants.WIN_DISCS){
+					for(int i = Constants.WIN_DISCS - 1; i >= 0; i--){
+						winningFields[i] = index(r, c);
+						r--;
+					}
 					return true;
 				}
 			}
@@ -217,7 +223,7 @@ public class Board {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Checks if a Mark m has 4 in a row on a a diagonal which goes downwards from point r, c. 
 	 * @param r The row to start checking on.
@@ -248,10 +254,15 @@ public class Board {
 			}else{
 				count = 0;
 			}
-			ci++;
 			if(count >= Constants.WIN_DISCS){
+				for(int i = Constants.WIN_DISCS - 1; i >= 0; i--){
+					winningFields[i] = index(ri, ci);
+					ri--;
+					ci--;
+				}
 				return true;
 			}
+			ci++;
 		}
 		return false;
 	}
@@ -282,14 +293,19 @@ public class Board {
 			}else{
 				count = 0;
 			}
-			ci++;
 			if(count >= Constants.WIN_DISCS){
+				for(int i = Constants.WIN_DISCS - 1; i >= 0; i--){
+					winningFields[i] = index(ri, ci);
+					ri++;
+					ci--;
+				}
 				return true;
 			}
+			ci++;
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Returns the Mark at field i.
 	 * @param i The field where you want the info from.
@@ -297,6 +313,14 @@ public class Board {
 	 */
 	public Mark getField(int i){
 		return fields[i];
+	}
+	
+	/**
+	 * Gets the winning fields of a game. Method should not be used if there is no winner.
+	 * @return result The winning fields of the winner.
+	 */
+	public int[] getWinFields(){
+		return winningFields;
 	}
 
 	/**
@@ -351,7 +375,6 @@ public class Board {
 	 * @return board A copy of this board.
 	 */
 	public Board deepCopy(){
-		//TODO die goddamn constructors werkend maken als je een constructor in een constructor aanroept...
 		Board res = new Board();
 		for(int i = 0; i < row * col; i++){
 			res.setField(i, this.getField(i));
@@ -374,4 +397,8 @@ public class Board {
 	public int getCol() {
 		return col;
 	}	
+	
+	public boolean isFullColumn(int c){
+		return getNextEntryInColumn(c) == -1;
+	}
 }

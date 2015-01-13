@@ -2,6 +2,7 @@ package gui;
 
 import constants.Constants;
 import model.*;
+import strategies.*;
 
 import java.awt.Container;
 import java.awt.GridLayout;
@@ -50,9 +51,10 @@ public class GameGui extends Container implements Observer, ActionListener {
 			for(int i = 0; i < ROWS * COLUMNS; i++){
 				if(fields[i].equals(source)){
 					try {
-						if(game.getBoard().deepCopy().addToCol(getCol(i), game.getCurrent())){ // Superfluous?
+						//if(game.getBoard().deepCopy().isFullColumn(getCol(i))){ // Superfluous?
+							System.out.println("HA");
 							game.takeTurn(getCol(i));
-						}
+						//}
 						
 					} catch (FalseMoveException e1) {
 						// Should never happen, as the client doesn't allow invalid moves.
@@ -157,7 +159,17 @@ public class GameGui extends Container implements Observer, ActionListener {
 			if(g.getWinner() == null){
 				turnLabel.setText("Draw!");
 			}else{
-				turnLabel.setText(g.getWinner().toString() + " has won the game!");
+				Mark winner = g.getWinner();
+				turnLabel.setText(g.getPlayers().get(winner).getName() + " (" + winner.toString() + ") "+ " has won the game!");
+				int[] winFields = g.getBoard().getWinFields();
+				for(int j = 0; j < Constants.WIN_DISCS; j++){
+					if(winner == Mark.RED){
+						fields[winFields[j]].setBackground(Constants.DARK_RED);
+					}else{
+						fields[winFields[j]].setBackground(Constants.DARK_YELLOW);
+					}
+					
+				}
 			}
 		}else{
 			turnLabel.setText("It is " + g.getPlayers().get(g.getCurrent()).getName() + " (" + g.getCurrent() + ") " + "'s turn.");
@@ -168,8 +180,9 @@ public class GameGui extends Container implements Observer, ActionListener {
 		Game game = new Game();
 		GameGui gameGui = new GameGui(game);
 		game.addObserver(gameGui);
-		gameGui.addPlayer(new HumanPlayer("Henk"));
-		gameGui.addPlayer(new HumanPlayer("Je moeder"));
+		//gameGui.addPlayer(new HumanPlayer("Henk"));
+		gameGui.addPlayer(new ComputerPlayer(new OneStepAheadStrategy()));
+		gameGui.addPlayer(new ComputerPlayer(new OneStepAheadStrategy()));
 		game.reset(gameGui.getPlayerList());
 		game.start();
 		JFrame frame = new JFrame();
@@ -203,6 +216,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 			System.exit(0);
 		}else if(restartButton.equals(source)){
 			gc.getGame().reset(playerList);
+			gc.getGame().start();
 		}
 	}
 	
