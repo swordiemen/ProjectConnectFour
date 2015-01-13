@@ -58,6 +58,7 @@ public class Game extends Observable {
 	 */
 	public boolean isIllegalMove(int c) {
 		return  c < 0 || c >= Constants.COLUMNS || board.isFullColumn(c);
+
 	}
 
 	public Mark getCurrent(){
@@ -104,12 +105,13 @@ public class Game extends Observable {
 
 	public void takeTurn(int c) throws FalseMoveException{
 		if(isIllegalMove(c)){
-			throw new FalseMoveException("Je kunt geen disc in een volle rij gooien. Of je gooit mis. ha.");
+			throw new FalseMoveException("Je kunt geen disc in een volle rij gooien. Of je gooit mis. ha. ");
 		}
 		board.addToCol(c, current);
 		current = current.next();
 		
 		if(!isCopy && !board.isGameOver()){
+			System.out.println(current.name());
 			players.get(current).requestMove(this);
 		}		
 		setChanged();

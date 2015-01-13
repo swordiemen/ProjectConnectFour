@@ -192,7 +192,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 		}else{
 			turnLabel.setText("It is " + g.getPlayers().get(g.getCurrent()).getName() + " (" + g.getCurrent() + ") " + "'s turn.");
 		}
-		turnLabel.setIcon(new ImageIcon(bi));;
+		//turnLabel.setIcon(new ImageIcon(bi));;
 	}
 	
 	public static void main(String[] args){
