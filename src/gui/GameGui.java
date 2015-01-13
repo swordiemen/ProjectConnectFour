@@ -5,13 +5,20 @@ import model.*;
 import strategies.*;
 
 import java.awt.Container;
+import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import exceptions.FalseMoveException;
@@ -28,6 +35,15 @@ public class GameGui extends Container implements Observer, ActionListener {
 	JLabel turnLabel;
 	GameController gc;
 	Mark ownMark;
+	static BufferedImage bi;
+	static {
+		try{
+			bi = ImageIO.read(GameGui.class.getResource("bunchie.jpg"));
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+	ImageIcon lama = new ImageIcon("bunchies.jpg", "lama");
 	
 	//GameController-------------------------------------------------------------------------------------------------------------------------------
 	class GameController implements ActionListener {
@@ -125,7 +141,8 @@ public class GameGui extends Container implements Observer, ActionListener {
 	 */
 	public void setUp(){
 		fields = new JButton[ROWS * COLUMNS];
-		turnLabel = new JLabel("It is red's turn.");
+		//turnLabel = new JLabel("It is red's turn.");
+		turnLabel = new JLabel(lama);
 		Container board = new Container();
 		GridLayout boardGrid = new GridLayout(ROWS, COLUMNS);
 		board.setLayout(boardGrid);
@@ -154,6 +171,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 		for(int i = 0; i < ROWS * COLUMNS; i++){
 			fields[i].setEnabled(g.isEmpty(i) && !g.isGameOver() && isMyTurn());
 			fields[i].setBackground(g.getField(i).toColor());
+			turnLabel.setIcon(new ImageIcon("bunchie.jpg"));
 		}
 		if(g.isGameOver()){
 			if(g.getWinner() == null){
@@ -174,6 +192,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 		}else{
 			turnLabel.setText("It is " + g.getPlayers().get(g.getCurrent()).getName() + " (" + g.getCurrent() + ") " + "'s turn.");
 		}
+		turnLabel.setIcon(new ImageIcon(bi));;
 	}
 	
 	public static void main(String[] args){
