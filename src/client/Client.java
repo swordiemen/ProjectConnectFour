@@ -209,4 +209,8 @@ public class Client implements Runnable {
 		Thread a = new Thread(client);
 		a.start();
 	}
+
+	public String getName() {
+		return name;
+	}
 }
