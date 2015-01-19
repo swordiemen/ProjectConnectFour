@@ -42,6 +42,15 @@ public class ServerGame extends Game {
 				p.quit(p);
 			}
 		}
+		if(super.isGameOver()){
+			for(Peer p: peers){
+				if(super.getWinner()!=null){
+					p.endGame(false, super.getPlayers().get(super.getWinner()));
+				}else{
+					p.endGame(true);
+				}
+			}
+		}
 	}
 
 		/**

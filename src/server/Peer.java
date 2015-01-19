@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import model.Player;
 import constants.Constants;
 
 /**
@@ -91,12 +92,26 @@ public class Peer implements Runnable {
 				if (splitOutput[0].equals(Constants.Protocol.SEND_PLAY)) {
 					server.addPlayer(this);
 				}
-			} else if (state.equals(Constants.STATE_INGAME)) {
-				if (splitOutput[0].equals(Constants.Protocol.SEND_MOVE)) {
-					game.takeTurn(Integer.parseInt(splitOutput[1]));
+				if (splitOutput[0].equals(Constants.Protocol.SEND_CHALLENGE)){
+					for (Peer p: server.getPeerList()){
+						if(p.getName().equals(splitOutput[1])){
+							try{
+								out.write(Constants.Protocol.SEND_CHALLENGED + "\n");
+								out.flush();
+							}catch(IOException e){
+								e.printStackTrace();
+							}
+						}
+					}
 				}
-				if (splitOutput[0].equals(Constants.Protocol.SEND_QUIT)) {
-					game.endGame(this);
+				if(splitOutput[0].equals(Constants.Protocol.SEND_CHAT)){
+				} else if (state.equals(Constants.STATE_INGAME)) {
+					if (splitOutput[0].equals(Constants.Protocol.SEND_MOVE)) {
+						game.takeTurn(Integer.parseInt(splitOutput[1]));
+					}
+					if (splitOutput[0].equals(Constants.Protocol.SEND_QUIT)) {
+						game.endGame(this);
+					}
 				}
 			}
 		}
@@ -179,16 +194,36 @@ public class Peer implements Runnable {
 		}
 		System.out.println(state);
 	}
-	public void sendUpdate(){
+
+	public void sendUpdate() {
 		StringBuilder players = new StringBuilder();
-		for(Peer p:server.getPeerList()){
+		for (Peer p : server.getPeerList()) {
 			players.append(p.getName() + " ");
 		}
 		players.append("\n");
-		try{
+		try {
 			out.write(Constants.Protocol.SEND_PLAYERS + " " + players);
-			}catch (IOException e){
-				e.printStackTrace();
-			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
+
+	public void endGame(Boolean draw, Player player) {
+		try{
+			out.write(Constants.Protocol.SEND_GAME_OVER + " " + draw +  
+					player.getName() + "\n" );
+			out.flush();
+		}catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+
+	public void endGame(Boolean draw) {
+		try{
+			out.write(Constants.Protocol.SEND_GAME_OVER + " " + draw + "\n" );
+			out.flush();
+		}catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+}

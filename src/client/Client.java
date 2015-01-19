@@ -27,6 +27,7 @@ public class Client implements Runnable {
 	private String state;	
 	private ClientGame game;
 	boolean exit = true;
+	private String opponent;
 
 	public Client(InetAddress address, int port, String Name) {
 		name = Name;
@@ -99,8 +100,10 @@ public class Client implements Runnable {
 					Mark ownMark;
 					if(inputWords[1].equals(name)){
 						ownMark = Mark.RED;
+						opponent = inputWords[2];
 					}else{
 						ownMark = Mark.YELLOW;
+						opponent = inputWords[1];
 					}
 					GameGui gameGui = new GameGui(game,ownMark);
 					game.addObserver(gameGui);
@@ -160,6 +163,37 @@ public class Client implements Runnable {
 			e.printStackTrace();
 		}
 
+	}
+	public void sendChat(String msg){
+		try{
+			out.write(Constants.Protocol.CHAT + " " + msg + " " + "\n");
+			out.flush();
+		}catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+	public void sendChat(String msg, String name){
+		try{
+			out.write(Constants.Protocol.CHAT + " " + name + " " + msg + "\n");
+			out.flush();
+		}catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+	public void sendChallenge(String name){
+		try{
+			out.write(Constants.Protocol.SEND_CHALLENGE + name + "\n");
+			out.flush();
+		}catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+	public void goToLobby(){
+		state = Constants.STATE_LOBBY;
+	}
+	public void playAgain(){
+		sendChallenge(opponent);
+		goToLobby();
 	}
 	public void quit(){
 		try{
