@@ -1,5 +1,6 @@
 package gui;
 
+import client.Client;
 import constants.Constants;
 import model.*;
 import strategies.*;
@@ -48,6 +49,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 	//GameController-------------------------------------------------------------------------------------------------------------------------------
 	class GameController implements ActionListener {
 		private Game game;
+		private Client client;
 		
 		/**
 		 * Creates a gameController with a specified game.
@@ -58,7 +60,11 @@ public class GameGui extends Container implements Observer, ActionListener {
 			for(int i = 0; i < ROWS * COLUMNS; i++){
 				fields[i].addActionListener(this);
 			}
-			
+		}
+		
+		public GameController(Game argGame, Client c){
+			this(argGame);
+			client = c;
 		}
 		
 		@Override
@@ -96,6 +102,10 @@ public class GameGui extends Container implements Observer, ActionListener {
 		public Game getGame(){
 			return game;
 		}
+
+		public Client getClient() {
+			return client;
+		}
 	
 	}
 	//End game controller -------------------------------------------------------------------------------------------------------------------------------
@@ -106,8 +116,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 	 * @param g The game the gui is created with.
 	 */
 	public GameGui(Game g){
-		setUp();
-		gc = new GameController(g);
+		this(g, null);
 	}
 	
 	/**
@@ -116,8 +125,14 @@ public class GameGui extends Container implements Observer, ActionListener {
 	 * @param m The <code>Mark</code> which belongs to the player.
 	 */
 	public GameGui(Game g, Mark m){
-		this(g);
+		this(g, m, null);
+	}
+	
+	public GameGui(Game g, Mark m, Client c){
+		setUp();
 		ownMark = m;
+		gc = new GameController(g, c);
+		
 	}
 	
 	/**
@@ -152,7 +167,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 			fields[i].setBackground(Constants.WHITE);
 			board.add(fields[i]);
 		}
-		quitButton = new JButton("Quit (disconnect)");
+		quitButton =  new JButton(isOfflineGame() ? "Quit (disconnect)" : "Return to lobby");
 		restartButton = new JButton("Restart game");
 		BoxLayout mainLayout = new BoxLayout(this, BoxLayout.Y_AXIS);
 		this.setLayout(mainLayout);
@@ -231,8 +246,11 @@ public class GameGui extends Container implements Observer, ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		if(quitButton.equals(source)){
-			//TODO fix socket stuff etc...
-			System.exit(0);
+			if(isOfflineGame()){
+				System.exit(0);
+			}else{
+				//gc.getClient().goToLobby();
+			}
 		}else if(restartButton.equals(source)){
 			gc.getGame().reset(playerList);
 			gc.getGame().start();
@@ -240,7 +258,11 @@ public class GameGui extends Container implements Observer, ActionListener {
 	}
 	
 	public boolean isMyTurn(){
-		return getOwnMark() == gc.getGame().getCurrent() || getOwnMark() == null;
+		return getOwnMark() == gc.getGame().getCurrent() || getOwnMark() == null; // true als ik aan de beurt ben of het een offline spel is																		  // dus getOwnMark() == null
+	}
+	
+	public boolean isOfflineGame(){
+		return getOwnMark() == null;
 	}
 
 }

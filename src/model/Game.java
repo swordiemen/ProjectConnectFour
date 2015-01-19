@@ -112,7 +112,7 @@ public class Game extends Observable {
 		
 		if(!isCopy && !board.isGameOver()){
 			System.out.println(current.name());
-			players.get(current).requestMove(this);
+			//players.get(current).requestMove(this);
 		}		
 		setChanged();
 		notifyObservers();

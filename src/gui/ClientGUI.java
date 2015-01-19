@@ -81,15 +81,6 @@ public class ClientGUI extends JFrame{
 		return port;
 	}
 
-	public int askForPlayers() {
-		int minimumPlayers = JOptionPane.showOptionDialog(this,
-				"Please select the minimal player amount.",
-				"Minimal player amount.", JOptionPane.OK_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, new Integer[] { 2, 3, 4 },
-				2);
-		return minimumPlayers + 2;
-	}
-
 	public String askForName() {
 		String name = "";
 		while (name.equals("")) {
