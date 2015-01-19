@@ -13,6 +13,10 @@ public interface Constants {
 	public static final Color DARK_RED = new Color(186, 32, 30);
 	public static final Color YELLOW = Color.YELLOW;
 	public static final Color DARK_YELLOW = new Color(148, 148, 15);
+	public static final String STATE_START = "START";
+	public static final String STATE_LOBBY = "LOBBY";
+	public static final String STATE_INGAME = "INGAME";
+			
 	interface Protocol {		
 		//alles wat achter de string zit zijn eventuele argumenten
 		//client en server

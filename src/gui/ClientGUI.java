@@ -1,19 +1,12 @@
 package gui;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Observable;
-import java.util.Observer;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-
-import client.Client;
-import model.Game;
 
 public class ClientGUI extends JFrame{
 	private static final long serialVersionUID = -4411033752001988794L;

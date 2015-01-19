@@ -104,18 +104,22 @@ public class Game extends Observable {
 	}
 
 	public void takeTurn(int c) throws FalseMoveException{
+		System.out.println();
 		if(isIllegalMove(c)){
 			throw new FalseMoveException("Je kunt geen disc in een volle rij gooien. Of je gooit mis. ha. ");
 		}
+		System.out.println("Super.takeTurn " + c );
 		board.addToCol(c, current);
 		current = current.next();
 		
 		if(!isCopy && !board.isGameOver()){
 			System.out.println(current.name());
-			players.get(current).requestMove(this);
-		}		
+			//players.get(current).requestMove(this);
+		}	
+		System.out.println("After request move");
 		setChanged();
 		notifyObservers();
+		System.out.println("Uit super.takeTurn");
 	}
 
 	public void setIsCopy(boolean b){

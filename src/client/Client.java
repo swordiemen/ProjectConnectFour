@@ -16,9 +16,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import constants.Constants;
-import model.Game;
 import model.HumanPlayer;
-import model.Player;
+import model.Mark;
 
 public class Client implements Runnable {
 	private Socket socket;
@@ -27,6 +26,7 @@ public class Client implements Runnable {
 	private String name;
 	private String state;	
 	private ClientGame game;
+	boolean exit = true;
 
 	public Client(InetAddress address, int port, String Name) {
 		name = Name;
@@ -36,7 +36,7 @@ public class Client implements Runnable {
 					socket.getInputStream()));
 			out = new BufferedWriter(new OutputStreamWriter(
 					socket.getOutputStream()));
-			state = "Start";
+			state = Constants.STATE_START;
 			logIn();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -70,34 +70,39 @@ public class Client implements Runnable {
 	}
 	@Override
 	public void run() {
-		String input;
+		String input = null;
 		String[] inputWords;
-		while(state.equals("Start")){
+		while(!exit){
 			try{
 				input = in.readLine();
-				System.out.println(input);
-				inputWords = input.split(" ");
-				if(inputWords[0].equals(Constants.Protocol.SEND_HELLO)){
-					out.write(Constants.Protocol.SEND_PLAY + "\n");
-					out.flush();
-					state = "Lobby";
-					System.out.println(state);
-				}else{
-					System.out.println(input);
-				}
 			}catch (IOException e){
 				e.printStackTrace();
 			}
-		}
-		while(state.equals("Lobby")){
-			try{
-				input = in.readLine();
-				System.out.println(input);
-				inputWords = input.split(" ");
-				if(inputWords[0].equals(Constants.Protocol.MAKE_GAME)){
+			System.out.println(input);
+			inputWords = input.split(" ");
+			if(state.equals(Constants.STATE_START)){
+				if(inputWords[0].equals(Constants.Protocol.SEND_HELLO)){
+					try{
+						out.write(Constants.Protocol.SEND_PLAY + "\n");
+						out.flush();
+					}catch (IOException e){
+						e.printStackTrace();
+					}
+					state = Constants.STATE_LOBBY;
+				}else{
 					System.out.println(input);
+				}
+			}
+			if(state.equals(Constants.STATE_LOBBY)){
+				if(inputWords[0].equals(Constants.Protocol.MAKE_GAME)){
 					game = new ClientGame(this);
-					GameGui gameGui = new GameGui(game);
+					Mark ownMark;
+					if(inputWords[1].equals(name)){
+						ownMark = Mark.RED;
+					}else{
+						ownMark = Mark.YELLOW;
+					}
+					GameGui gameGui = new GameGui(game,ownMark);
 					game.addObserver(gameGui);
 					gameGui.addPlayer(new HumanPlayer(inputWords[1]));
 					gameGui.addPlayer(new HumanPlayer(inputWords[2]));
@@ -107,31 +112,24 @@ public class Client implements Runnable {
 					frame.add(gameGui);
 					frame.setSize(933, 800);
 					frame.setVisible(true);
-					state = "inGame";
+					state = Constants.STATE_INGAME;
 				}else{
 					System.out.println(input);
 				}
-			}catch (IOException e){
-				e.printStackTrace();
 			}
-		}
-		while(state.equals("inGame")){
-			try{
-				input = in.readLine();
-				inputWords = input.split(" ");
-				System.out.println(input);
+			if(state.equals(Constants.STATE_INGAME)){
+
 				if(inputWords[0].equals(Constants.Protocol.MAKE_MOVE)){
-					game.doTurn(Integer.parseInt(inputWords[1]));
-				}else{
-					System.out.println(input);
+					try{
+						game.doTurn(Integer.parseInt(inputWords[1]));
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+					} catch (FalseMoveException e) {
+						quit();
+						e.printStackTrace();
+					}
 				}
-			}catch (IOException e){
-				e.printStackTrace();
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
-			} catch (FalseMoveException e) {
-				quit();
-				e.printStackTrace();
+
 			}
 		}
 	}
@@ -145,7 +143,7 @@ public class Client implements Runnable {
 	}
 	public void logIn() {
 		try {
-			out.write(Constants.Protocol.SEND_HELLO + " " + name + "\n");
+			out.write(Constants.Protocol.SEND_HELLO + " " + name + " " + "111" +  "\n");
 			out.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

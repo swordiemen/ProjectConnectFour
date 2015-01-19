@@ -29,12 +29,15 @@ public class ServerGame extends Game {
 
 
 	public void takeTurn(int collumn) {
+		System.out.println("take Turn Server " + collumn);
 		try{
 			super.takeTurn(collumn);
+			System.out.println("After Super.takeTurn " + collumn);
 			for (Peer p:peers){
 				p.sendMove(collumn);
 			}
 		}catch(FalseMoveException e){
+			e.printStackTrace();
 			for (Peer p: peers){
 				p.quit(p);
 			}
