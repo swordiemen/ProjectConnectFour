@@ -8,18 +8,17 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import model.Player;
 import constants.Constants;
 
 /**
- * Peer for a simple client-server application
+ * Peer for ConnectFour game
  * 
- * @author Theo Ruys
- * @version 2005.02.21
+ * @author Yannick Mijsters & Tim Blok
  */
 
 public class Peer implements Runnable {
 	public static final String EXIT = "exit";
-	private boolean yourTurn;
 	protected String name;
 	protected Socket sock;
 	protected BufferedReader in;
@@ -27,6 +26,7 @@ public class Peer implements Runnable {
 	protected Server server;
 	protected ServerGame game;
 	private String state;
+	private Boolean exit = false;
 
 	/*
 	 * @ requires (nameArg != null) && (sockArg != null);
@@ -45,10 +45,9 @@ public class Peer implements Runnable {
 		in = new BufferedReader(new InputStreamReader(sockArg.getInputStream()));
 		out = new BufferedWriter(new OutputStreamWriter(
 				sockArg.getOutputStream()));
-		state = "START";
+		state = Constants.STATE_START;
 
 	}
-
 
 	/**
 	 * Reads strings of the stream of the socket-connection and writes the
@@ -57,52 +56,63 @@ public class Peer implements Runnable {
 	public void run() {
 		String output = null;
 		String[] splitOutput;
-		while (state.equals("START")) {
+		while (!exit) {
 			try {
 				output = in.readLine();
-				System.out.println("CLIENT SAYS" + output);
-				splitOutput = output.split(" ");
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			System.out.println("CLIENT SAYS" + output);
+			splitOutput = output.split(" ");
+			if (state.equals(Constants.STATE_START)) {
 				if (splitOutput[0].equals(Constants.Protocol.SEND_HELLO)) {
 					this.name = splitOutput[1];
-					out.write(Constants.Protocol.SEND_HELLO + " " + name +  "\n");
-					out.flush();
-					state = "LOBBY";
-				} else {
-					out.write(Constants.Protocol.SEND_ERROR + " InvalidCommand" +  "\n");
-					out.flush();
-				}
-			} catch (IOException e) {	
-				e.printStackTrace();
-			}
+					try {
+						out.write(Constants.Protocol.SEND_HELLO + " " + name
+								+ "\n");
+						out.flush();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					sendUpdate();
+					state = Constants.STATE_LOBBY;
+				}else{
+					try {
+						out.write(Constants.Protocol.SEND_ERROR+ " " + "Invalid Command"
+								+ "\n");
+						out.flush();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 
-		}
-		while (state.equals("LOBBY")) {
-			try {
-				output = in.readLine();
-				System.out.println(output);
-				splitOutput = output.split(" ");
+				}
+			} else if (state.equals(Constants.STATE_LOBBY)) {
 				if (splitOutput[0].equals(Constants.Protocol.SEND_PLAY)) {
 					server.addPlayer(this);
-				} 
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		while (state.equals("ingame")) {
-			try {
-				output = in.readLine();
-				System.out.println(output + " inGame");
-				splitOutput = output.split(" ");
-				if (splitOutput[0].equals(Constants.Protocol.SEND_MOVE)) {
-					game.takeTurn(Integer.parseInt(splitOutput[1]));
-					System.out.println("Send_Move Gelezen");
 				}
-				if (splitOutput[0].equals(Constants.Protocol.SEND_QUIT)) {
-					game.endGame(this);
+				if (splitOutput[0].equals(Constants.Protocol.SEND_CHALLENGE)){
+					for (Peer p: server.getPeerList()){
+						if(p.getName().equals(splitOutput[1])){
+							try{
+								out.write(Constants.Protocol.SEND_CHALLENGED + "\n");
+								out.flush();
+							}catch(IOException e){
+								e.printStackTrace();
+							}
+						}
+					}
 				}
-			} catch (Exception e) {
-				//e.printStackTrace();
+				if(splitOutput[0].equals(Constants.Protocol.SEND_CHAT)){
+				} else if (state.equals(Constants.STATE_INGAME)) {
+					if (splitOutput[0].equals(Constants.Protocol.SEND_MOVE)) {
+						game.takeTurn(Integer.parseInt(splitOutput[1]));
+					}
+					if (splitOutput[0].equals(Constants.Protocol.SEND_QUIT)) {
+						game.endGame(this);
+					}
+				}
 			}
 		}
 	}
@@ -111,9 +121,10 @@ public class Peer implements Runnable {
 	 * Reads a string from the console and sends this string over the
 	 * socket-connection to the Peer proces. On Peer.EXIT the method ends
 	 */
-	//@ requires x >= 0 && x < 8;
-	//@ requires y >= 0 && y < 9;
+	// @ requires x >= 0 && x < 8;
+	// @ requires y >= 0 && y < 9;
 	public void sendMove(int collumn) {
+		System.out.println("Make Move");
 		try {
 			out.write(Constants.Protocol.MAKE_MOVE + " " + collumn + "\n");
 			out.flush();
@@ -124,25 +135,12 @@ public class Peer implements Runnable {
 	}
 
 	/**
-	 * writes yourTurn to BufferedWriter out
-	 */
-
-	public void sendYourTurn() {
-		this.yourTurn=true;
-		try {
-			out.write("yourTurn\n");
-			out.flush();
-			System.out.println("yourTurn");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-		}
-	}
-
-	/**
 	 * Sets the instance variable game to gameIn;
-	 * @param gameIn the game that this.game will be changed to
+	 * 
+	 * @param gameIn
+	 *            the game that this.game will be changed to
 	 */
-	//@ requires gameIn != null;
+	// @ requires gameIn != null;
 
 	public void setGame(ServerGame gameIn) {
 		this.game = gameIn;
@@ -155,19 +153,21 @@ public class Peer implements Runnable {
 
 	public ServerGame getGame() {
 		return this.game;
-	}	
-	public void quit(Peer p){
-		try{
-			if(this.equals(p)){
-				out.write(Constants.Protocol.SEND_GAME_OVER + " " + false + " " + true + "\n" );
+	}
+
+	public void quit(Peer p) {
+		try {
+			if (this.equals(p)) {
+				out.write(Constants.Protocol.SEND_GAME_OVER + " " + false + " "
+						+ true + "\n");
 				out.flush();
 			}
-			
-		}catch(IOException e){
+
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/** returns name of the peer object */
 	public String getName() {
 		return name;
@@ -175,14 +175,18 @@ public class Peer implements Runnable {
 
 	/**
 	 * writes a message to BufferedReader out
-	 * @param peers An ArrayList of type Peer containing all Peers that will join the new Game
+	 * 
+	 * @param peers
+	 *            An ArrayList of type Peer containing all Peers that will join
+	 *            the new Game
 	 */
 
 	public void startGame(ArrayList<Peer> peers) {
-		this.state = "ingame";
+		this.state = Constants.STATE_INGAME;
 		try {
-			out.write(Constants.Protocol.MAKE_GAME + " " + peers.get(0).getName() + " "
-					+ peers.get(1).getName() + "\n");
+			out.write(Constants.Protocol.MAKE_GAME + " "
+					+ peers.get(0).getName() + " " + peers.get(1).getName()
+					+ "\n");
 			out.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -190,5 +194,36 @@ public class Peer implements Runnable {
 		}
 		System.out.println(state);
 	}
-}
 
+	public void sendUpdate() {
+		StringBuilder players = new StringBuilder();
+		for (Peer p : server.getPeerList()) {
+			players.append(p.getName() + " ");
+		}
+		players.append("\n");
+		try {
+			out.write(Constants.Protocol.SEND_PLAYERS + " " + players);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void endGame(Boolean draw, Player player) {
+		try{
+			out.write(Constants.Protocol.SEND_GAME_OVER + " " + draw +  
+					player.getName() + "\n" );
+			out.flush();
+		}catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+
+	public void endGame(Boolean draw) {
+		try{
+			out.write(Constants.Protocol.SEND_GAME_OVER + " " + draw + "\n" );
+			out.flush();
+		}catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+}

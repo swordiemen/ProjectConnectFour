@@ -6,13 +6,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import model.Player;
-
 /**
- * Server.
+ * Server for the ConnectFour game.
+ * serverGameList is a list of all the games running on the server
  * 
- * @author Theo Ruys
- * @version 2005.02.21
+ * @author Yannick Mijsters & Tim Blok
  */
 public class Server implements Runnable {
 	private ArrayList<Peer> twoPlayerList = new ArrayList<Peer>();
