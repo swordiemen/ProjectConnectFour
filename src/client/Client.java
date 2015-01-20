@@ -31,7 +31,7 @@ public class Client implements Runnable {
 	private ClientGame game;
 	boolean exit = false;
 	private String opponent;
-	private Lobby frame;
+	private Lobby lobby;
 
 	public Client(InetAddress address, int port, String Name) {
 		name = Name;
@@ -131,7 +131,7 @@ public class Client implements Runnable {
 				playerList.add(inputNames[i]);
 			}
 		}
-		frame.setPlayerList(playerList); 
+		lobby.setPlayerList(playerList); 
 	}
 	public void makeMove(String turn){
 		try{
@@ -180,8 +180,8 @@ public class Client implements Runnable {
 	}
 	public void goToLobby(){
 		System.out.println("In goToLobby");
-		frame = new Lobby(this);
-		Thread lobbyThread = new Thread(frame);
+		lobby = new Lobby(this);
+		Thread lobbyThread = new Thread(lobby);
 		lobbyThread.start();
 		state = Constants.STATE_LOBBY;	
 	}
@@ -208,12 +208,23 @@ public class Client implements Runnable {
 		state = Constants.STATE_INGAME;
 	}
 	public void challenged(String name){
+		lobby.challenged(name);
 	}
 	public void challengeAccepted(String name){
-
+		try{
+			out.write(Constants.Protocol.ACCEPT_CHALLENGE + "\n");
+			out.flush();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 	}
 	public void challengeRefused(String name){
-
+		try{
+			out.write(Constants.Protocol.REJECT_CHALLENGE + "\n");
+			out.flush();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 	}
 	public void playAgain(){
 		sendChallenge(opponent);

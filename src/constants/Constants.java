@@ -29,6 +29,9 @@ public interface Constants {
 		public static final String CHAT = "chat"; //message
 		public static final String SEND_CHALLENGE = "challenge"; //name
 		public static final String GET_LEADERBOARDS = "getLeaderboard";
+		public static final String REJECT_CHALLENGE = "rejectChallenge";
+		public static final String ACCEPT_CHALLENGE = "acceptChallenge";
+
 		
 		
 		//server

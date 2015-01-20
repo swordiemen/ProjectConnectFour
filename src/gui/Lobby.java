@@ -188,7 +188,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		}else if(challengeButton.equals(source)){
 			if(playerListList.getSelectedValue() != null){
 				chatboxPane.setText(chatboxPane.getText() + "[Server] You challenged " + playerListList.getSelectedValue() + ".\n");
-				//client.sendChallenge(playerListList.getSelectedValue();
+				client.sendChallenge(playerListList.getSelectedValue());
 			}else{
 				chatboxPane.setText(chatboxPane.getText() + "[Server] You must select a player to challenge.\n");
 			}
