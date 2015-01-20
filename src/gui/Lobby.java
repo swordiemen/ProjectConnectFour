@@ -15,6 +15,7 @@ import java.awt.GridLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JTextField;
@@ -55,8 +56,8 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Client c = new Client(InetAddress.getByName("localhost"), 1338, "Sjon");
-					//Client c = Client.createClient(new ClientGUI());
+					//Client c = new Client(InetAddress.getByName("localhost"), 1338, "Sjon"); //used for skipping the beginning optionpanes
+					Client c = Client.createClient(new ClientGUI());
 					Lobby frame = new Lobby(c);
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -65,7 +66,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 			}
 		});
 	}
-	
+
 	public void run(){
 		Lobby frame = new Lobby(client);
 		frame.setVisible(true);
@@ -78,13 +79,13 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		client = argClient;
 		setUp();
 	}
-	
+
 	public void setUp(){
 		playerList = new ArrayList<String>();
 		for(int i = 0; i < 2100; i++){
 			playerList.add(String.valueOf(i));
 		}
-		
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 500, 570);
 		contentPane = new JPanel();
@@ -94,26 +95,26 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 
 		listModel = new DefaultListModel<String>();
 		if(playerList.size() > 0){
-		for(String name : playerList){
-			listModel.addElement(name);
-		}
+			for(String name : playerList){
+				listModel.addElement(name);
+			}
 		}else{
 			listModel.addElement("The server has not sent \n a list yet");
 		}
-		
+
 		playerListList = new JList<String>(listModel);
 		playerListList.setBounds(5, 5, 222, 386);
 		playerListListScrollPane = new JScrollPane(playerListList);
 		playerListListScrollPane.setBounds(5, 5, 222, 386);
 		contentPane.add(playerListListScrollPane);
-//		contentPane.add(playerListList);
-		
-		
+		//		contentPane.add(playerListList);
+
+
 		challengeButton = new JButton("Challenge!");
 		challengeButton.setBounds(5, 402, 222, 23);
 		challengeButton.addActionListener(this);
 		contentPane.add(challengeButton);
-		
+
 		chatboxPane = new JTextPane();
 		chatboxPane.setEditable(false);
 		chatboxPane.setBounds(238, 5, 236, 386);
@@ -121,17 +122,17 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		chatboxScrollPane = new JScrollPane(chatboxPane);
 		chatboxScrollPane.setBounds(238, 5, 236, 386);
 		contentPane.add(chatboxScrollPane);
-		
+
 		btnSend = new JButton("Send");
 		btnSend.addActionListener(this);
 		btnSend.setBounds(386, 436, 89, 23);
 		contentPane.add(btnSend);
-		
+
 		chatField = new JTextField();
 		chatField.setBounds(237, 402, 237, 20);
 		contentPane.add(chatField);
 		chatField.setColumns(10);
-		
+
 		whisperBox = new JComboBox<String>();
 		whisperBox.setBounds(238, 437, 138, 20);
 		whisperBox.addItem("Everyone");
@@ -139,32 +140,44 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 			whisperBox.addItem(name);
 		}
 		contentPane.add(whisperBox);
-		
+
 		playButton = new JButton("Seek random player");
 		playButton.addActionListener(this);
 		playButton.setBounds(5, 436, 222, 23);
 		contentPane.add(playButton);
-		
+
 		showLeaderBoardButton = new JButton("Leaderboards");
 		showLeaderBoardButton.setBounds(5, 470, 469, 23);
 		showLeaderBoardButton.addActionListener(this);
 		contentPane.add(showLeaderBoardButton);
-		
+
 		quitButton = new JButton("Disconnect");
 		quitButton.setBounds(5, 500, 469, 23);
 		quitButton.addActionListener(this);
 		contentPane.add(quitButton);
 		chatboxPane.setText("Welkom " + client.getName() + ".\n");
-		
-		
-		
+
+
+
+	}
+
+	public void challenged(String name){
+		int accepted = JOptionPane.showOptionDialog(this, "Accept the challenge from " + name + "?",
+				"", JOptionPane.OK_OPTION,
+				JOptionPane.QUESTION_MESSAGE, null, new String[] {
+				"Yes", "No" }, 2);
+		if(accepted == JOptionPane.OK_OPTION){
+			client.challengeAccepted(name);
+		}else{
+			client.chalengeRefused(name);
+		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		if(showLeaderBoardButton.equals(source)){
-			listModel.addElement("ROFL");
+			challenged("je moeder");
 			//TODO leaderboards.
 		}else if(playButton.equals(source)){
 			chatboxPane.setText(chatboxPane.getText() + "[Server] Searching for someone for you to play with...\n");
@@ -182,8 +195,6 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		}else if(btnSend.equals(source)){
 			if(whisperBox.getSelectedIndex() == 0){
 				chatboxPane.setText(chatboxPane.getText() + "[Chat] Je hebt niks.\n");
-				byte b = (byte) 0x101;
-				System.out.println("1e: " + b % 2 + " 2e: " + (b >> 1 % 2) + " 3e: " + (b >> 2 % 2));
 				//client.sendTell(chatField.getText());
 			}else{
 				chatboxPane.setText(chatboxPane.getText() + "[Chat] Je target " + whisperBox.getSelectedItem() + ".\n");
@@ -191,5 +202,9 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 			}
 			//client.sendMsg();
 		}
+	}
+
+	public void setPlayerList(List<String> argPlayerList){
+		playerList = argPlayerList;
 	}
 }
