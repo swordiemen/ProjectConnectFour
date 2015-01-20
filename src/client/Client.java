@@ -1,6 +1,5 @@
 package client;
 
-
 import exceptions.FalseMoveException;
 import gui.ClientGUI;
 import gui.GameGui;
@@ -27,11 +26,12 @@ public class Client implements Runnable {
 	private BufferedReader in;
 	private BufferedWriter out;
 	private String name;
-	private String state;	
+	private String state;
 	private ClientGame game;
 	boolean exit = false;
 	private String opponent;
 	private Lobby lobby;
+	private boolean challenged;
 
 	public Client(InetAddress address, int port, String Name) {
 		name = Name;
@@ -57,7 +57,7 @@ public class Client implements Runnable {
 		int ai = JOptionPane.showOptionDialog(gui, "Choose your player type",
 				"Player type", JOptionPane.OK_OPTION,
 				JOptionPane.QUESTION_MESSAGE, null, new String[] {
-				"MultiPlayer", "Human" }, 2);
+						"MultiPlayer", "Human" }, 2);
 		if (ai == JOptionPane.CLOSED_OPTION) {
 			System.exit(0);
 		}
@@ -73,50 +73,58 @@ public class Client implements Runnable {
 		}
 		return client;
 	}
+
 	@Override
 	public void run() {
 		String input = null;
 		String[] inputWords;
-		while(!exit){
-			try{
+		while (!exit) {
+			try {
 				input = in.readLine();
-			}catch (IOException e){
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			System.out.println(input);
 			inputWords = input.split(" ");
-			if(state.equals(Constants.STATE_START)){
-				if(inputWords[0].equals(Constants.Protocol.SEND_HELLO)){
+			if (state.equals(Constants.STATE_START)) {
+				if (inputWords[0].equals(Constants.Protocol.SEND_HELLO)) {
 					goToLobby();
-				}else{
+				} else {
 					System.out.println(input);
 				}
 			}
-			if(state.equals(Constants.STATE_LOBBY)){
-				if(inputWords[0].equals(Constants.Protocol.MAKE_GAME)){
-					createGame(inputWords[1],(inputWords[2]));
-				}else if(inputWords[0].equals(Constants.Protocol.SEND_CHALLENGED)){
+			if (state.equals(Constants.STATE_LOBBY)) {
+				if (inputWords[0].equals(Constants.Protocol.MAKE_GAME)) {
+					createGame(inputWords[1], (inputWords[2]));
+				} else if (inputWords[0]
+						.equals(Constants.Protocol.SEND_CHALLENGED)) {
 					challenged(inputWords[1]);
-				}else if(inputWords[0].equals(Constants.Protocol.SEND_PLAYERS)){
+				} else if (inputWords[0]
+						.equals(Constants.Protocol.SEND_PLAYERS)) {
 					sendUpdatePlayers(inputWords);
 				}
-				if(state.equals(Constants.STATE_INGAME)){
-					makeMove(inputWords[1]);
+				if (state.equals(Constants.STATE_INGAME)) {
+					if (inputWords[0].equals(Constants.Protocol.MAKE_MOVE)) {
+						makeMove(inputWords[1]);
+					}
 				}
 			}
 		}
 	}
-	public void makeGame(){
-		try{
+
+	public void makeGame() {
+		try {
 			out.write(Constants.Protocol.SEND_PLAY);
 			out.flush();
-		}catch (IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+
 	public void logIn() {
 		try {
-			out.write(Constants.Protocol.SEND_HELLO + " " + name + " " + "111" +  "\n");
+			out.write(Constants.Protocol.SEND_HELLO + " " + name + " " + "111"
+					+ "\n");
 			out.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -124,17 +132,19 @@ public class Client implements Runnable {
 		}
 
 	}
-	public void sendUpdatePlayers(String[] inputNames){
+
+	public void sendUpdatePlayers(String[] inputNames) {
 		ArrayList<String> playerList = new ArrayList<String>();
-		for(int i = 1; i < inputNames.length; i++){
-			if(inputNames[i]!=name){
+		for (int i = 1; i < inputNames.length; i++) {
+			if (inputNames[i] != name) {
 				playerList.add(inputNames[i]);
 			}
 		}
-		lobby.setPlayerList(playerList); 
+		lobby.setPlayerList(playerList);
 	}
-	public void makeMove(String turn){
-		try{
+
+	public void makeMove(String turn) {
+		try {
 			game.doTurn(Integer.parseInt(turn));
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
@@ -146,7 +156,7 @@ public class Client implements Runnable {
 
 	public void sendTurn(int collumn) {
 		try {
-			out.write(Constants.Protocol.SEND_MOVE + " " + collumn + "\n" );
+			out.write(Constants.Protocol.SEND_MOVE + " " + collumn + "\n");
 			out.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -154,48 +164,56 @@ public class Client implements Runnable {
 		}
 
 	}
-	public void sendChat(String msg){
-		try{
+
+	public void sendChat(String msg) {
+		try {
 			out.write(Constants.Protocol.CHAT + " " + msg + " " + "\n");
 			out.flush();
-		}catch (IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	public void sendChat(String msg, String name){
-		try{
+
+	public void sendChat(String msg, String name) {
+		try {
 			out.write(Constants.Protocol.CHAT + " " + name + " " + msg + "\n");
 			out.flush();
-		}catch (IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	public void sendChallenge(String name){
-		try{
-			out.write(Constants.Protocol.SEND_CHALLENGE + name + "\n");
-			out.flush();
-		}catch (IOException e){
-			e.printStackTrace();
+
+	public void sendChallenge(String name) {
+		if (!challenged) {
+			try {
+				out.write(Constants.Protocol.SEND_CHALLENGE + name + "\n");
+				out.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			challenged = true;
 		}
 	}
-	public void goToLobby(){
+
+	public void goToLobby() {
 		System.out.println("In goToLobby");
 		lobby = new Lobby(this);
 		Thread lobbyThread = new Thread(lobby);
 		lobbyThread.start();
-		state = Constants.STATE_LOBBY;	
+		state = Constants.STATE_LOBBY;
 	}
-	public void createGame(String player1, String player2){
+
+	public void createGame(String player1, String player2) {
 		game = new ClientGame(this);
 		Mark ownMark;
-		if(player1.equals(name)){
+		if (player1.equals(name)) {
 			ownMark = Mark.RED;
 			opponent = player2;
-		}else{
+		} else {
 			ownMark = Mark.YELLOW;
 			opponent = player1;
 		}
-		GameGui gameGui = new GameGui(game,ownMark);
+		GameGui gameGui = new GameGui(game, ownMark);
 		game.addObserver(gameGui);
 		gameGui.addPlayer(new HumanPlayer(player1));
 		gameGui.addPlayer(new HumanPlayer(player2));
@@ -207,38 +225,55 @@ public class Client implements Runnable {
 		frame.setVisible(true);
 		state = Constants.STATE_INGAME;
 	}
-	public void challenged(String name){
-		lobby.challenged(name);
+
+	public void displayError(String error) {
+		lobby.displayError(error);
 	}
-	public void challengeAccepted(String name){
-		try{
+
+	public void challenged(String name) {
+		if (!challenged) {
+			lobby.challenged(name);
+			challenged = true;
+		}
+
+	}
+
+	public void challengeAccepted(String name) {
+		try {
 			out.write(Constants.Protocol.ACCEPT_CHALLENGE + "\n");
 			out.flush();
-		}catch(IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		challenged = false;
 	}
-	public void challengeRefused(String name){
-		try{
+
+	public void challengeRefused(String name) {
+		try {
 			out.write(Constants.Protocol.REJECT_CHALLENGE + "\n");
 			out.flush();
-		}catch(IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		challenged = false;
 	}
-	public void playAgain(){
+
+	public void playAgain() {
 		sendChallenge(opponent);
 		goToLobby();
 	}
-	public void quit(){
-		try{
+
+	public void quit() {
+		exit = true;
+		try {
 			out.write(Constants.Protocol.SEND_QUIT + "\n");
 			out.flush();
-		}catch(IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	public static void main(String[] args){
+
+	public static void main(String[] args) {
 		Client client = createClient(new ClientGUI());
 		Thread a = new Thread(client);
 		a.start();

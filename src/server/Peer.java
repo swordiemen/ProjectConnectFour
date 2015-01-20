@@ -27,6 +27,7 @@ public class Peer implements Runnable {
 	protected ServerGame game;
 	private String state;
 	private Boolean exit = false;
+	private Peer inChallenge;
 
 	/*
 	 * @ requires (nameArg != null) && (sockArg != null);
@@ -60,8 +61,7 @@ public class Peer implements Runnable {
 			try {
 				output = in.readLine();
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				quit();
 			}
 			System.out.println("CLIENT SAYS" + output);
 			splitOutput = output.split(" ");
@@ -95,6 +95,12 @@ public class Peer implements Runnable {
 				if (splitOutput[0].equals(Constants.Protocol.SEND_CHALLENGE)){
 					sendChallenge(splitOutput[1]);
 				}
+				if(splitOutput[0].equals(Constants.Protocol.ACCEPT_CHALLENGE)){
+					acceptChallenge();
+				}
+				if(splitOutput[0].equals(Constants.Protocol.REJECT_CHALLENGE)){
+					refuseChallenge();
+				}
 				if(splitOutput[0].equals(Constants.Protocol.SEND_CHAT)){
 				} else if (state.equals(Constants.STATE_INGAME)) {
 					if (splitOutput[0].equals(Constants.Protocol.SEND_MOVE)) {
@@ -104,6 +110,9 @@ public class Peer implements Runnable {
 						game.endGame(this);
 					}
 				}
+			}
+			if(splitOutput[0].equals(Constants.Protocol.SEND_QUIT)){
+				quit();
 			}
 		}
 	}
@@ -158,7 +167,16 @@ public class Peer implements Runnable {
 			e.printStackTrace();
 		}
 	}
-
+	public void acceptChallenge(){
+		ArrayList<Peer> peers = new ArrayList<Peer>();
+		peers.add(this);
+		peers.add(inChallenge);
+		server.startNewGame(peers);
+	}
+	public void refuseChallenge(){
+		inChallenge.challengeCancelled();
+		challengeCancelled();
+	}
 	/** returns name of the peer object */
 	public String getName() {
 		return name;
@@ -201,11 +219,27 @@ public class Peer implements Runnable {
 	public void sendChallenge(String name){
 		for (Peer p: server.getPeerList()){
 			if(p.getName().equals(name)){
-				p.challenged(this);
+				if(!p.inChallenge()){
+					p.challenged(this);
+				}else{
+					challengeCancelled();
+				}
 			}
 		}
 	}
+	public void challengeCancelled(){
+		try{
+			out.write(Constants.Protocol.SEND_CHALLENGE_CANCELLED + "\n");
+			out.flush();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+	public boolean inChallenge(){
+		return inChallenge!=null;
+	}
 	public void challenged(Peer p){
+		inChallenge = p;
 		try{
 			out.write(Constants.Protocol.SEND_CHALLENGED + " " + p.getName() + "\n");
 			out.flush();
@@ -229,6 +263,16 @@ public class Peer implements Runnable {
 			out.write(Constants.Protocol.SEND_GAME_OVER + " " + draw + "\n" );
 			out.flush();
 		}catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+	public void quit(){
+		try{
+			exit = true;
+			out.close();
+			in.close();
+			sock.close();
+		}catch(IOException e){
 			e.printStackTrace();
 		}
 	}
