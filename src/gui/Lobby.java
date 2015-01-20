@@ -1,29 +1,21 @@
 package gui;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
-import javax.crypto.spec.GCMParameterSpec;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListDataListener;
 import javax.swing.JList;
 
-import java.awt.GridLayout;
-
 import javax.swing.DefaultListModel;
-import javax.swing.JCheckBox;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
-import javax.swing.ListModel;
 
 import client.Client;
-import model.*;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -33,6 +25,7 @@ import java.util.List;
 
 public class Lobby extends JFrame implements ActionListener, Runnable{
 
+	private static final long serialVersionUID = 6766393428618386437L;
 	private JPanel contentPane;
 	private JTextField chatField;
 	private Client client;
@@ -41,7 +34,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 	JTextPane chatboxPane;
 	JScrollPane chatboxScrollPane;
 	JScrollPane playerListListScrollPane;
-	JButton btnSend;
+	JButton sendButton;
 	JComboBox<String> whisperBox;
 	JButton playButton;
 	JButton showLeaderBoardButton;
@@ -56,8 +49,8 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Client c = new Client(InetAddress.getByName("localhost"), 1338, "Sjon");
-					//Client c = Client.createClient(new ClientGUI());
+					//Client c = new Client(InetAddress.getByName("localhost"), 1338, "Sjon");
+					Client c = Client.createClient(new ClientGUI());
 					Lobby frame = new Lobby(c);
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -67,6 +60,9 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		});
 	}
 
+	/**
+	 * Starts a new <code>Lobby</code>.
+	 */
 	public void run(){
 		Lobby frame = new Lobby(client);
 		frame.setVisible(true);
@@ -80,6 +76,10 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		setUp();
 	}
 
+	
+	/**
+	 * Sets up the lobby GUI.
+	 */
 	public void setUp(){
 		playerList = new ArrayList<String>();
 		for(int i = 0; i < 2100; i++){
@@ -123,10 +123,10 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		chatboxScrollPane.setBounds(238, 5, 236, 386);
 		contentPane.add(chatboxScrollPane);
 
-		btnSend = new JButton("Send");
-		btnSend.addActionListener(this);
-		btnSend.setBounds(386, 436, 89, 23);
-		contentPane.add(btnSend);
+		sendButton = new JButton("Send");
+		sendButton.addActionListener(this);
+		sendButton.setBounds(386, 436, 89, 23);
+		contentPane.add(sendButton);
 
 		chatField = new JTextField();
 		chatField.setBounds(237, 402, 237, 20);
@@ -161,23 +161,39 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 
 	}
 	
+	/**
+	 * This method is called when the client has received a challenge. This will prompt
+	 * a <code>JOptionPane</code>, where the client can choose to accept or decline the challenge.
+	 * If the client accepts, it will send a <code>challangeAccept</code> with its name, otherwise it will send
+	 * a <code>challengeRefused</code> with its name.
+	 * @param name The name of the client.
+	 */
 	public void challenged(String name){
+		String[] options = new String[]{"Accept", "Decline"};
 		int accepted = JOptionPane.showOptionDialog(this, "Accept the challenge from " + name + "?",
-				"", JOptionPane.OK_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, new String[] {
-				"Yes", "No" }, 2);
+				"", JOptionPane.OK_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
 		if(accepted == JOptionPane.OK_OPTION){
 			client.challengeAccepted(name);
 		}else{
 			client.challengeRefused(name);
 		}
 	}
+	
+	/**
+	 * Displays an error.
+	 * @param errorMsg The error message.
+	 */
+	public void displayError(String errorMsg){
+		String[] options = new String[]{"OK"};
+		JOptionPane.showOptionDialog(this, errorMsg, "Error occurred.", JOptionPane.DEFAULT_OPTION, 
+				JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		if(showLeaderBoardButton.equals(source)){
-			challenged("je moeder");
+			displayError("Leaderboards zijn nog niet gemaakt.");
 			//TODO leaderboards.
 		}else if(playButton.equals(source)){
 			chatboxPane.setText(chatboxPane.getText() + "[Server] Searching for someone for you to play with...\n");
@@ -192,7 +208,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 			}else{
 				chatboxPane.setText(chatboxPane.getText() + "[Server] You must select a player to challenge.\n");
 			}
-		}else if(btnSend.equals(source)){
+		}else if(sendButton.equals(source)){
 			if(whisperBox.getSelectedIndex() == 0){
 				chatboxPane.setText(chatboxPane.getText() + "[Chat] Je hebt niks.\n");
 				byte b = (byte) 0x101;
@@ -206,7 +222,22 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		}
 	}
 	
+	/**
+	 * When a <code>Client</code> receives an updated player list from the <code>Server</code>, this method is called. 
+	 * Updates the <code>playerList</code> of this <code>Lobby</code>.
+	 * @param argPlayerList The updated <code>playerList</code>
+	 */
 	public void setPlayerList(List<String> argPlayerList){
 		playerList = argPlayerList;
+	}
+	
+	/**
+	 * This method is called when the <code>Client</code> receives a chat message from the <code>Server</code>.
+	 * It will then be displayed in this <code>Lobby</code>'s <code>chatboxPane</code>.
+	 * @param sender The sender of the chat message.
+	 * @param msg The chat message of the sender.
+	 */
+	public void receivedChat(String sender, String msg){
+		chatboxPane.setText(chatboxPane.getText() + sender + ": " + msg + "\n");
 	}
 }
