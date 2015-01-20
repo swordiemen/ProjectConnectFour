@@ -169,7 +169,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		if(accepted == JOptionPane.OK_OPTION){
 			client.challengeAccepted(name);
 		}else{
-			client.chalengeRefused(name);
+			client.challengeRefused(name);
 		}
 	}
 
