@@ -13,7 +13,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -98,8 +97,6 @@ public class Client implements Runnable {
 					createGame(inputWords[1],inputWords[2]);
 				}else if(inputWords[0].equals(Constants.Protocol.SEND_CHALLENGED)){
 					challenged(inputWords[1]);
-				}else if(inputWords[0].equals(Constants.Protocol.SEND_PLAYERS)){
-					sendUpdatePlayers(inputWords);
 				}
 			}
 			if(state.equals(Constants.STATE_INGAME)){
@@ -127,15 +124,6 @@ public class Client implements Runnable {
 			e.printStackTrace();
 		}
 
-	}
-	public void sendUpdatePlayers(String[] inputNames){
-		ArrayList<String> playerList = new ArrayList<String>();
-		for(int i = 1; i < inputNames.length; i++){
-			if(inputNames[i]!=name){
-				playerList.add(inputNames[i]);
-			}
-		}
-		frame.setPlayerList(playerList); 
 	}
 	public void makeMove(String turn){
 		try{
