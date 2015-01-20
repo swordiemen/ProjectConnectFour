@@ -93,7 +93,16 @@ public class Peer implements Runnable {
 					server.addPlayer(this);
 				}
 				if (splitOutput[0].equals(Constants.Protocol.SEND_CHALLENGE)){
-					sendChallenge(splitOutput[1]);
+					for (Peer p: server.getPeerList()){
+						if(p.getName().equals(splitOutput[1])){
+							try{
+								out.write(Constants.Protocol.SEND_CHALLENGED + "\n");
+								out.flush();
+							}catch(IOException e){
+								e.printStackTrace();
+							}
+						}
+					}
 				}
 				if(splitOutput[0].equals(Constants.Protocol.SEND_CHAT)){
 				} else if (state.equals(Constants.STATE_INGAME)) {
@@ -195,21 +204,6 @@ public class Peer implements Runnable {
 		try {
 			out.write(Constants.Protocol.SEND_PLAYERS + " " + players);
 		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	public void sendChallenge(String name){
-		for (Peer p: server.getPeerList()){
-			if(p.getName().equals(name)){
-				p.challenged(this);
-			}
-		}
-	}
-	public void challenged(Peer p){
-		try{
-			out.write(Constants.Protocol.SEND_CHALLENGED + " " + p.getName() + "\n");
-			out.flush();
-		}catch (IOException e){
 			e.printStackTrace();
 		}
 	}

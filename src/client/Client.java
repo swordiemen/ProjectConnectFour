@@ -4,7 +4,6 @@ package client;
 import exceptions.FalseMoveException;
 import gui.ClientGUI;
 import gui.GameGui;
-import gui.Lobby;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -28,9 +27,8 @@ public class Client implements Runnable {
 	private String name;
 	private String state;	
 	private ClientGame game;
-	boolean exit = false;
+	boolean exit = true;
 	private String opponent;
-	private Lobby frame;
 
 	public Client(InetAddress address, int port, String Name) {
 		name = Name;
@@ -82,27 +80,58 @@ public class Client implements Runnable {
 			}catch (IOException e){
 				e.printStackTrace();
 			}
-			System.out.println("Server Says: " + input);
 			System.out.println(input);
 			inputWords = input.split(" ");
 			if(state.equals(Constants.STATE_START)){
 				if(inputWords[0].equals(Constants.Protocol.SEND_HELLO)){
-					goToLobby();
+					try{
+						out.write(Constants.Protocol.SEND_PLAY + "\n");
+						out.flush();
+					}catch (IOException e){
+						e.printStackTrace();
+					}
+					state = Constants.STATE_LOBBY;
 				}else{
 					System.out.println(input);
 				}
 			}
 			if(state.equals(Constants.STATE_LOBBY)){
 				if(inputWords[0].equals(Constants.Protocol.MAKE_GAME)){
-					createGame(inputWords[1],inputWords[2]);
-				}else if(inputWords[0].equals(Constants.Protocol.SEND_CHALLENGED)){
-					challenged(inputWords[1]);
+					game = new ClientGame(this);
+					Mark ownMark;
+					if(inputWords[1].equals(name)){
+						ownMark = Mark.RED;
+						opponent = inputWords[2];
+					}else{
+						ownMark = Mark.YELLOW;
+						opponent = inputWords[1];
+					}
+					GameGui gameGui = new GameGui(game,ownMark);
+					game.addObserver(gameGui);
+					gameGui.addPlayer(new HumanPlayer(inputWords[1]));
+					gameGui.addPlayer(new HumanPlayer(inputWords[2]));
+					game.reset(gameGui.getPlayerList());
+					game.start();
+					JFrame frame = new JFrame();
+					frame.add(gameGui);
+					frame.setSize(933, 800);
+					frame.setVisible(true);
+					state = Constants.STATE_INGAME;
+				}else{
+					System.out.println(input);
 				}
 			}
 			if(state.equals(Constants.STATE_INGAME)){
 
 				if(inputWords[0].equals(Constants.Protocol.MAKE_MOVE)){
-					makeMove(inputWords[1]);
+					try{
+						game.doTurn(Integer.parseInt(inputWords[1]));
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+					} catch (FalseMoveException e) {
+						quit();
+						e.printStackTrace();
+					}
 				}
 
 			}
@@ -121,26 +150,17 @@ public class Client implements Runnable {
 			out.write(Constants.Protocol.SEND_HELLO + " " + name + " " + "111" +  "\n");
 			out.flush();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
-	public void makeMove(String turn){
-		try{
-			game.doTurn(Integer.parseInt(turn));
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		} catch (FalseMoveException e) {
-			quit();
-			e.printStackTrace();
-		}
-	}
-	
 	public void sendTurn(int collumn) {
 		try {
 			out.write(Constants.Protocol.SEND_MOVE + " " + collumn + "\n" );
 			out.flush();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -170,42 +190,7 @@ public class Client implements Runnable {
 		}
 	}
 	public void goToLobby(){
-		System.out.println("In goToLobby");
-		frame = new Lobby(this);
-		Thread lobbyThread = new Thread(frame);
-		lobbyThread.start();
-		state = Constants.STATE_LOBBY;	
-	}
-	public void createGame(String player1, String player2){
-		game = new ClientGame(this);
-		Mark ownMark;
-		if(player1.equals(name)){
-			ownMark = Mark.RED;
-			opponent = player2;
-		}else{
-			ownMark = Mark.YELLOW;
-			opponent = player1;
-		}
-		GameGui gameGui = new GameGui(game,ownMark);
-		game.addObserver(gameGui);
-		gameGui.addPlayer(new HumanPlayer(player1));
-		gameGui.addPlayer(new HumanPlayer(player2));
-		game.reset(gameGui.getPlayerList());
-		game.start();
-		JFrame frame = new JFrame();
-		frame.add(gameGui);
-		frame.setSize(933, 800);
-		frame.setVisible(true);
-		state = Constants.STATE_INGAME;
-	}
-	public void challenged(String name){
-		//frame.challenged(name);
-	}
-	public void challengeAccepted(String name){
-		
-	}
-	public void challengeRefused(String name){
-		
+		state = Constants.STATE_LOBBY;
 	}
 	public void playAgain(){
 		sendChallenge(opponent);
@@ -213,7 +198,7 @@ public class Client implements Runnable {
 	}
 	public void quit(){
 		try{
-			out.write(Constants.Protocol.SEND_QUIT + " " + "\n");
+			out.write(Constants.Protocol.SEND_QUIT + " ");
 			out.flush();
 		}catch(IOException e){
 			e.printStackTrace();
