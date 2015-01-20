@@ -1,28 +1,19 @@
 package gui;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
-import javax.crypto.spec.GCMParameterSpec;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListDataListener;
 import javax.swing.JList;
-
-import java.awt.GridLayout;
-
 import javax.swing.DefaultListModel;
-import javax.swing.JCheckBox;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
-import javax.swing.ListModel;
 
 import client.Client;
-import model.*;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -32,6 +23,7 @@ import java.util.List;
 
 public class Lobby extends JFrame implements ActionListener, Runnable{
 
+	private static final long serialVersionUID = 448156704246479892L;
 	private JPanel contentPane;
 	private JTextField chatField;
 	private Client client;
@@ -55,7 +47,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Client c = new Client(InetAddress.getByName("localhost"), 1338, "Sjon");
+					Client c = new Client(InetAddress.getByName("localhost"), 1338, "Yannick");
 					//Client c = Client.createClient(new ClientGUI());
 					Lobby frame = new Lobby(c);
 					frame.setVisible(true);
@@ -67,8 +59,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 	}
 	
 	public void run(){
-		Lobby frame = new Lobby(client);
-		frame.setVisible(true);
+		setVisible(true);
 	}
 
 	/**
@@ -77,6 +68,8 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 	public Lobby(Client argClient) {
 		client = argClient;
 		setUp();
+		setVisible(true);
+		System.out.println("Constructor Lobby");
 	}
 	
 	public void setUp(){
@@ -155,9 +148,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		quitButton.addActionListener(this);
 		contentPane.add(quitButton);
 		chatboxPane.setText("Welkom " + client.getName() + ".\n");
-		
-		
-		
+		System.out.println("End Of SetUp");
 	}
 
 	@Override
@@ -165,7 +156,6 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		Object source = e.getSource();
 		if(showLeaderBoardButton.equals(source)){
 			listModel.addElement("ROFL");
-			//TODO leaderboards.
 		}else if(playButton.equals(source)){
 			chatboxPane.setText(chatboxPane.getText() + "[Server] Searching for someone for you to play with...\n");
 			client.makeGame();
@@ -175,7 +165,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		}else if(challengeButton.equals(source)){
 			if(playerListList.getSelectedValue() != null){
 				chatboxPane.setText(chatboxPane.getText() + "[Server] You challenged " + playerListList.getSelectedValue() + ".\n");
-				//client.sendChallenge(playerListList.getSelectedValue();
+				client.sendChallenge(playerListList.getSelectedValue());
 			}else{
 				chatboxPane.setText(chatboxPane.getText() + "[Server] You must select a player to challenge.\n");
 			}
