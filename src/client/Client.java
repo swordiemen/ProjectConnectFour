@@ -27,7 +27,7 @@ public class Client implements Runnable {
 	private String name;
 	private String state;	
 	private ClientGame game;
-	boolean exit = false;
+	boolean exit = true;
 	private String opponent;
 
 	public Client(InetAddress address, int port, String Name) {
