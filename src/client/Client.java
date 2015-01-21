@@ -138,6 +138,7 @@ public class Client implements Runnable {
 		for (int i = 1; i < inputNames.length; i++) {
 			if (inputNames[i] != name) {
 				playerList.add(inputNames[i]);
+				System.out.println(inputNames[i]);
 			}
 		}
 		lobby.setPlayerList(playerList);

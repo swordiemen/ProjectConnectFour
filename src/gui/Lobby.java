@@ -76,16 +76,12 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		setUp();
 	}
 
-	
+
 	/**
 	 * Sets up the lobby GUI.
 	 */
 	public void setUp(){
 		playerList = new ArrayList<String>();
-		for(int i = 0; i < 2100; i++){
-			playerList.add(String.valueOf(i));
-		}
-
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 500, 570);
 		contentPane = new JPanel();
@@ -160,7 +156,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 
 
 	}
-	
+
 	/**
 	 * This method is called when the client has received a challenge. This will prompt
 	 * a <code>JOptionPane</code>, where the client can choose to accept or decline the challenge.
@@ -178,7 +174,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 			client.challengeRefused(name);
 		}
 	}
-	
+
 	/**
 	 * Displays an error.
 	 * @param errorMsg The error message.
@@ -221,16 +217,22 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 			//client.sendMsg();
 		}
 	}
-	
+
 	/**
 	 * When a <code>Client</code> receives an updated player list from the <code>Server</code>, this method is called. 
 	 * Updates the <code>playerList</code> of this <code>Lobby</code>.
 	 * @param argPlayerList The updated <code>playerList</code>
 	 */
 	public void setPlayerList(List<String> argPlayerList){
+		System.out.println("SetPlayerList");
 		playerList = argPlayerList;
+		listModel.clear();
+		for(String name:playerList){
+			listModel.addElement(name);
+		}
+		repaint();
 	}
-	
+
 	/**
 	 * This method is called when the <code>Client</code> receives a chat message from the <code>Server</code>.
 	 * It will then be displayed in this <code>Lobby</code>'s <code>chatboxPane</code>.

@@ -89,6 +89,7 @@ public class Peer implements Runnable {
 
 				}
 			} else if (state.equals(Constants.STATE_LOBBY)) {
+				
 				if (splitOutput[0].equals(Constants.Protocol.SEND_PLAY)) {
 					server.addPlayer(this);
 				}
@@ -212,6 +213,7 @@ public class Peer implements Runnable {
 		players.append("\n");
 		try {
 			out.write(Constants.Protocol.SEND_PLAYERS + " " + players);
+			out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
