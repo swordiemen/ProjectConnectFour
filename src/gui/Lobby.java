@@ -205,15 +205,16 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 				chatboxPane.setText(chatboxPane.getText() + "[Server] You must select a player to challenge.\n");
 			}
 		}else if(sendButton.equals(source)){
-			if(whisperBox.getSelectedIndex() == 0){
-				chatboxPane.setText(chatboxPane.getText() + "[Chat] Je hebt niks.\n");
-				byte b = (byte) 0x101;
-				System.out.println("1e: " + b % 2 + " 2e: " + (b >> 1 % 2) + " 3e: " + (b >> 2 % 2));
-				//client.sendTell(chatField.getText());
-			}else{
-				chatboxPane.setText(chatboxPane.getText() + "[Chat] Je target " + whisperBox.getSelectedItem() + ".\n");
-				//client.sendWhisper(chatField.getText(), whisperBox.getSelectedItem());
-			}
+//			if(whisperBox.getSelectedIndex() == 0){
+////				byte b = (byte) 0x101;
+////				System.out.println("1e: " + b % 2 + " 2e: " + (b >> 1 % 2) + " 3e: " + (b >> 2 % 2));
+//				//client.sendTell(chatField.getText());
+//			}else{
+//				
+//				//chatboxPane.setText(chatboxPane.getText() + "[Chat] Je target " + whisperBox.getSelectedItem() + ".\n");
+//				//client.sendWhisper(chatField.getText(), whisperBox.getSelectedItem());
+//			}
+			client.sendChat(chatField.getText());
 			//client.sendMsg();
 		}
 	}
@@ -224,22 +225,32 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 	 * @param argPlayerList The updated <code>playerList</code>
 	 */
 	public void setPlayerList(List<String> argPlayerList){
-		System.out.println("SetPlayerList");
+		System.out.println("setPlayerList()");
 		playerList = argPlayerList;
+		System.out.println(playerList);
 		listModel.clear();
 		for(String name:playerList){
 			listModel.addElement(name);
 		}
-		repaint();
+		playerListList = new JList<String>(listModel);
+		repaint(); //zou niet nodig moeten zijn
 	}
 
 	/**
 	 * This method is called when the <code>Client</code> receives a chat message from the <code>Server</code>.
-	 * It will then be displayed in this <code>Lobby</code>'s <code>chatboxPane</code>.
+	 * It will then be displayed in this <code>Lobby1</code>'s <code>chatboxPane</code>.
 	 * @param sender The sender of the chat message.
 	 * @param msg The chat message of the sender.
 	 */
-	public void receivedChat(String sender, String msg){
-		chatboxPane.setText(chatboxPane.getText() + sender + ": " + msg + "\n");
+	public void receivedChat(String sender, String[] msgArray){
+		StringBuilder sb = new StringBuilder();
+		for(int i = 1; i < msgArray.length; i++){
+			sb.append(" " + msgArray[i]);
+		}
+		String msg = sb.toString();
+		sendButton.setEnabled(false);
+		System.out.println("received chat?!!!!!!!");
+		chatboxPane.setText("Lol");
+		chatboxPane.setText(chatboxPane.getText() + sender + ":" + msg + "\n" + "BWAH");
 	}
 }

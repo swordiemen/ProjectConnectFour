@@ -104,7 +104,6 @@ public class Game extends Observable {
 	}
 
 	public void takeTurn(int c) throws FalseMoveException{
-		System.out.println();
 		if(isIllegalMove(c)){
 			throw new FalseMoveException("Je kunt geen disc in een volle rij gooien. Of je gooit mis. ha. ");
 		}

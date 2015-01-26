@@ -6,6 +6,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import model.Leaderboard;
+import constants.Constants;
+
 /**
  * Server for the ConnectFour game.
  * serverGameList is a list of all the games running on the server
@@ -21,6 +24,7 @@ public class Server implements Runnable {
 	private Peer peer;
 	private boolean shutdown;
 	private int port;
+	private Leaderboard leaderboard;
 
 	/**
 	 * Changes the instance variable port
@@ -61,7 +65,9 @@ public class Server implements Runnable {
 			try {
 				connection = listenSocket.accept();
 				peer = new Peer(connection, this);
-				this.peerList.add(peer);
+				//if(isValidName(peer.getName())){
+					this.peerList.add(peer);
+				//}
 				connection = null;
 				(new Thread(peer)).start();
 
@@ -106,6 +112,18 @@ public class Server implements Runnable {
 			twoPlayerList.clear();
 		}
 	}
+	
+	public void removePlayer(Peer p){
+		peerList.remove(p);
+	}
+	
+	public void sendUpdatedPlayerList(){
+		for(Peer p : peerList){
+			if(p.getState().equals(Constants.STATE_LOBBY)){
+				p.sendUpdate();
+			}
+		}
+	}
 
 	/**
 	 * Closes the ServerSocket and sets legalPort to 'false'
@@ -116,6 +134,31 @@ public class Server implements Runnable {
 		a.setPort(1338);
 		Thread b = new Thread(a);
 		b.start();
+	}
+
+	public void sendLobbyChat(String[] splitOutput, String sender) {
+		for(Peer p : peerList){
+			if(p.getState().equals(Constants.STATE_LOBBY)){
+				p.sendLobbyChat(splitOutput, sender);
+			}
+		}
+	}
+	
+	public boolean isValidName(String name){
+		if(name.contains(" ")){
+			System.out.println("Spatie");
+			return false;
+		}else{
+			if(peerList.size() > 0){
+				for(Peer p : peerList){
+					if(p.getName().equals(name)){
+						System.out.println("Bestaat al");
+						return false;
+					}
+				}
+			}
+		}
+		return true;
 	}
 
 } // end of class Server

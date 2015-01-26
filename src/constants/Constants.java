@@ -16,6 +16,7 @@ public interface Constants {
 	public static final String STATE_START = "START";
 	public static final String STATE_LOBBY = "LOBBY";
 	public static final String STATE_INGAME = "INGAME";
+	public static final int NUMBER_OF_OPTIONS = 3;
 			
 	interface Protocol {		
 		//alles wat achter de string zit zijn eventuele argumenten

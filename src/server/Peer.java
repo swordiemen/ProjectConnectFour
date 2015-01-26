@@ -25,6 +25,9 @@ public class Peer implements Runnable {
 	protected BufferedWriter out;
 	protected Server server;
 	protected ServerGame game;
+	private boolean canChat;
+	private boolean canChallenge;
+	private boolean canLeaderboard;
 	private String state;
 	private Boolean exit = false;
 	private Peer inChallenge;
@@ -63,11 +66,20 @@ public class Peer implements Runnable {
 			} catch (IOException e1) {
 				quit();
 			}
-			System.out.println("CLIENT SAYS" + output);
+			System.out.println("CLIENT SAYS " + output);
 			splitOutput = output.split(" ");
 			if (state.equals(Constants.STATE_START)) {
 				if (splitOutput[0].equals(Constants.Protocol.SEND_HELLO)) {
-					this.name = splitOutput[1];
+					this.setName(splitOutput[1]);
+					//if(server.isValidName(getName())){
+					byte[] options = new byte[Constants.NUMBER_OF_OPTIONS];
+					for(int i = 0; i < Constants.NUMBER_OF_OPTIONS; i++){
+						options[i] = Byte.parseByte(splitOutput[2].substring(i, i + 1));
+					}
+					System.out.println(options);
+					canChat = options[0] % 2 == 1;
+					canChallenge = options[1] % 2 == 1;
+					canLeaderboard = options[2] % 2 == 1;
 					try {
 						out.write(Constants.Protocol.SEND_HELLO + " " + name
 								+ "\n");
@@ -77,6 +89,15 @@ public class Peer implements Runnable {
 					}
 					sendUpdate();
 					state = Constants.STATE_LOBBY;
+					//}else{
+					//						try{
+					//							out.write(Constants.Protocol.SEND_ERROR + " invalidName je faalt\n"); //TODO add in constants
+					//							out.flush();
+					//						}catch(IOException e){
+					//							e.printStackTrace();
+					//							quit();
+					//						}
+
 				}else{
 					try {
 						out.write(Constants.Protocol.SEND_ERROR+ " " + "Invalid Command"
@@ -88,8 +109,8 @@ public class Peer implements Runnable {
 					}
 
 				}
-			} else if (state.equals(Constants.STATE_LOBBY)) {
-				
+			}  if (state.equals(Constants.STATE_LOBBY)) {
+
 				if (splitOutput[0].equals(Constants.Protocol.SEND_PLAY)) {
 					server.addPlayer(this);
 				}
@@ -102,8 +123,10 @@ public class Peer implements Runnable {
 				if(splitOutput[0].equals(Constants.Protocol.REJECT_CHALLENGE)){
 					refuseChallenge();
 				}
-				if(splitOutput[0].equals(Constants.Protocol.SEND_CHAT)){
-				} else if (state.equals(Constants.STATE_INGAME)) {
+				if(splitOutput[0].equals(Constants.Protocol.CHAT)){
+					server.sendLobbyChat(splitOutput, getName());
+				} 
+				else if (state.equals(Constants.STATE_INGAME)) {
 					if (splitOutput[0].equals(Constants.Protocol.SEND_MOVE)) {
 						game.takeTurn(Integer.parseInt(splitOutput[1]));
 					}
@@ -116,6 +139,10 @@ public class Peer implements Runnable {
 				quit();
 			}
 		}
+	}
+
+	private void setName(String argName) {
+		this.name = argName;
 	}
 
 	/**
@@ -218,6 +245,7 @@ public class Peer implements Runnable {
 			e.printStackTrace();
 		}
 	}
+
 	public void sendChallenge(String name){
 		for (Peer p: server.getPeerList()){
 			if(p.getName().equals(name)){
@@ -271,9 +299,41 @@ public class Peer implements Runnable {
 	public void quit(){
 		try{
 			exit = true;
+			server.removePlayer(this);
 			out.close();
 			in.close();
 			sock.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+
+	public String getState(){
+		return state;
+	}
+
+	public boolean isChallangable(){
+		return canChallenge;
+	}
+
+	public boolean isLeaderboardable(){
+		return canLeaderboard;
+	}
+
+	public boolean isChattable(){
+		return canChat;
+	}
+
+	public void sendLobbyChat(String[] splitOutput, String sender) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(" " + sender + ":");
+		for(int i = 1; i < splitOutput.length; i++){
+			sb.append(" " + splitOutput[i]);
+		}
+		try{
+			out.write(Constants.Protocol.SEND_CHAT + sb.toString() + "\n");
+			System.out.println("Sending lobby chat:" + sb.toString());
+			out.flush();
 		}catch(IOException e){
 			e.printStackTrace();
 		}

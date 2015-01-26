@@ -57,7 +57,7 @@ public class Client implements Runnable {
 		int ai = JOptionPane.showOptionDialog(gui, "Choose your player type",
 				"Player type", JOptionPane.OK_OPTION,
 				JOptionPane.QUESTION_MESSAGE, null, new String[] {
-						"MultiPlayer", "Human" }, 2);
+				"MultiPlayer", "Human" }, 2);
 		if (ai == JOptionPane.CLOSED_OPTION) {
 			System.exit(0);
 		}
@@ -84,14 +84,10 @@ public class Client implements Runnable {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			System.out.println(input);
+			System.out.println("SERVER SAYS " + input);
 			inputWords = input.split(" ");
 			if (state.equals(Constants.STATE_START)) {
-				if (inputWords[0].equals(Constants.Protocol.SEND_HELLO)) {
-					goToLobby();
-				} else {
-					System.out.println(input);
-				}
+				checkInputName(inputWords); //TODO dit fixen, server geeft geen errors.
 			}
 			if (state.equals(Constants.STATE_LOBBY)) {
 				if (inputWords[0].equals(Constants.Protocol.MAKE_GAME)) {
@@ -102,6 +98,8 @@ public class Client implements Runnable {
 				} else if (inputWords[0]
 						.equals(Constants.Protocol.SEND_PLAYERS)) {
 					sendUpdatePlayers(inputWords);
+				} else if(inputWords[0].equals(Constants.Protocol.SEND_CHAT)){
+					lobby.receivedChat("Server", inputWords);
 				}
 				if (state.equals(Constants.STATE_INGAME)) {
 					if (inputWords[0].equals(Constants.Protocol.MAKE_MOVE)) {
@@ -114,7 +112,7 @@ public class Client implements Runnable {
 
 	public void makeGame() {
 		try {
-			out.write(Constants.Protocol.SEND_PLAY);
+			out.write(Constants.Protocol.SEND_PLAY + "\n");
 			out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -138,7 +136,7 @@ public class Client implements Runnable {
 		for (int i = 1; i < inputNames.length; i++) {
 			if (inputNames[i] != name) {
 				playerList.add(inputNames[i]);
-				System.out.println(inputNames[i]);
+				System.out.println("Added " + inputNames[i]);
 			}
 		}
 		lobby.setPlayerList(playerList);
@@ -168,7 +166,7 @@ public class Client implements Runnable {
 
 	public void sendChat(String msg) {
 		try {
-			out.write(Constants.Protocol.CHAT + " " + msg + " " + "\n");
+			out.write(Constants.Protocol.CHAT + " " + msg + "\n");
 			out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -228,7 +226,11 @@ public class Client implements Runnable {
 	}
 
 	public void displayError(String error) {
-		lobby.displayError(error);
+		if(lobby != null){
+			lobby.displayError(error);
+		}else{
+			displayErrorNoLobby(error, new ClientGUI());
+		}
 	}
 
 	public void challenged(String name) {
@@ -282,5 +284,35 @@ public class Client implements Runnable {
 
 	public String getName() {
 		return name;
+	}
+	
+	public void displayErrorNoLobby(String errorMsg, ClientGUI gui){
+		String[] options = new String[]{"OK"};
+		JOptionPane.showOptionDialog(gui, errorMsg, "Error occurred.", JOptionPane.DEFAULT_OPTION, 
+				JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+		name = gui.askForName();
+		logIn();
+		
+	}
+	
+	public void checkInputName(String[] inputWords){
+		if (inputWords[0].equals(Constants.Protocol.SEND_HELLO)) {
+			goToLobby();
+		}else if(inputWords[0].equals(Constants.Protocol.SEND_ERROR)){
+			if(inputWords[1].equals("invalidName")){
+				StringBuilder reason = new StringBuilder();
+				if(inputWords.length > 2){
+					for(int i = 2; i < inputWords.length; i++){
+						reason.append(" " + inputWords[i]);
+					}
+				}
+				displayError("Je naam is ongeldig met reden: " + reason);
+			}else{
+				displayError("We krijgen een error van de server.\n Wij weten ook niet waarom.");
+			}
+		}
+		else {
+			System.out.println("Faal in checkInputName");
+		}
 	}
 }
