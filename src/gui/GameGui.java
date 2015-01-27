@@ -255,7 +255,8 @@ public class GameGui extends Container implements Observer, ActionListener {
 			}
 		}else if(restartButton.equals(source)){
 			if(isOfflineGame()){
-				gc.getGame().reset(playerList);
+				ArrayList<Player> players = (ArrayList<Player>) gc.getGame().getPlayerList();
+				gc.getGame().reset(players);
 				gc.getGame().start();
 			}else{
 				gc.getClient().quitGame();

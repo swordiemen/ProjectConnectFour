@@ -20,7 +20,7 @@ public class Game extends Observable {
 	private List<Player> playerList;
 	private Random rand = new Random();
 
-	
+
 	// Constructors
 
 	public Game(){
@@ -30,7 +30,7 @@ public class Game extends Observable {
 	public Game(ArrayList<Player> argPlayerList){
 		this(Constants.ROWS, Constants.COLUMNS, argPlayerList);
 	}
-	
+
 	public Game(int r, int c){
 		this(r, c, null);
 	}
@@ -76,18 +76,16 @@ public class Game extends Observable {
 	public Map<Mark, Player> getPlayers(){
 		return players;
 	}
-	
+
 	public List<Player> getPlayerList(){
 		return playerList;
 	}
 
 	// Commands
 	public void reset(ArrayList<Player> argPlayerList) {
-		if(playerList != null){
-			playerList.clear();
-		}else{
-			playerList = new ArrayList<Player>();
-		}
+		System.out.println(argPlayerList.size());
+		playerList = new ArrayList<Player>();
+		System.out.println(argPlayerList.size());
 		playerList.add(argPlayerList.get(0));
 		playerList.add(argPlayerList.get(1));
 		current = Mark.RED;
@@ -110,7 +108,7 @@ public class Game extends Observable {
 		System.out.println("Super.takeTurn " + c );
 		board.addToCol(c, current);
 		current = current.next();
-		
+
 		if(!isCopy && !board.isGameOver()){
 			System.out.println(current.name());
 			//players.get(current).requestMove(this);
@@ -148,7 +146,7 @@ public class Game extends Observable {
 	public void setPlayers(ArrayList<Player> argPlayers) {
 		reset(argPlayers);
 	}
-	
+
 	public Player getPlayerByName(String name){
 		Player res = null;
 		for(Player p : getPlayerList()){
