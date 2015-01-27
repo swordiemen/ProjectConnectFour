@@ -66,15 +66,15 @@ public class Peer implements Runnable {
 			} catch (IOException e1) {
 				quit();
 			}
-			System.out.println("CLIENT SAYS " + output);
+			System.out.println("CLIENT SAYS " + output + ": In State: " + state);
 			splitOutput = output.split(" ");
 			if (state.equals(Constants.STATE_START)) {
 				if (splitOutput[0].equals(Constants.Protocol.SEND_HELLO)) {
-					this.setName(splitOutput[1]);
+					this.setName(splitOutput[2]);
 					//if(server.isValidName(getName())){
 					byte[] options = new byte[Constants.NUMBER_OF_OPTIONS];
 					for(int i = 0; i < Constants.NUMBER_OF_OPTIONS; i++){
-						options[i] = Byte.parseByte(splitOutput[2].substring(i, i + 1));
+						options[i] = Byte.parseByte(splitOutput[1].substring(i, i + 1));
 					}
 					System.out.println(options);
 					canChat = options[0] % 2 == 1;
@@ -87,8 +87,8 @@ public class Peer implements Runnable {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					sendUpdate();
 					state = Constants.STATE_LOBBY;
+					server.sendUpdatedPlayerList();
 					//}else{
 					//						try{
 					//							out.write(Constants.Protocol.SEND_ERROR + " invalidName je faalt\n"); //TODO add in constants
@@ -109,7 +109,8 @@ public class Peer implements Runnable {
 					}
 
 				}
-			}  if (state.equals(Constants.STATE_LOBBY)) {
+			}  
+			if (state.equals(Constants.STATE_LOBBY)) {
 
 				if (splitOutput[0].equals(Constants.Protocol.SEND_PLAY)) {
 					server.addPlayer(this);
@@ -125,14 +126,16 @@ public class Peer implements Runnable {
 				}
 				if(splitOutput[0].equals(Constants.Protocol.CHAT)){
 					server.sendLobbyChat(splitOutput, getName());
-				} 
-				else if (state.equals(Constants.STATE_INGAME)) {
-					if (splitOutput[0].equals(Constants.Protocol.SEND_MOVE)) {
-						game.takeTurn(Integer.parseInt(splitOutput[1]));
-					}
-					if (splitOutput[0].equals(Constants.Protocol.SEND_QUIT)) {
-						game.endGame(this);
-					}
+				}
+			}
+			if (state.equals(Constants.STATE_INGAME)) {
+				System.out.println(state);
+				if (splitOutput[0].equals(Constants.Protocol.SEND_MOVE)) {
+					System.out.println("Send Move Received");
+					game.takeTurn(Integer.parseInt(splitOutput[1]));
+				}
+				if (splitOutput[0].equals(Constants.Protocol.SEND_QUIT)) {
+					game.endGame(this);
 				}
 			}
 			if(splitOutput[0].equals(Constants.Protocol.SEND_QUIT)){
@@ -140,6 +143,7 @@ public class Peer implements Runnable {
 			}
 		}
 	}
+
 
 	private void setName(String argName) {
 		this.name = argName;
@@ -157,8 +161,7 @@ public class Peer implements Runnable {
 			out.write(Constants.Protocol.MAKE_MOVE + " " + collumn + "\n");
 			out.flush();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-
+			e.printStackTrace();
 		}
 	}
 
@@ -219,6 +222,7 @@ public class Peer implements Runnable {
 	 */
 
 	public void startGame(ArrayList<Peer> peers) {
+		System.out.println("Peer starts Game");
 		this.state = Constants.STATE_INGAME;
 		try {
 			out.write(Constants.Protocol.MAKE_GAME + " "
@@ -226,20 +230,15 @@ public class Peer implements Runnable {
 					+ "\n");
 			out.flush();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println(state);
 	}
 
-	public void sendUpdate() {
-		StringBuilder players = new StringBuilder();
-		for (Peer p : server.getPeerList()) {
-			players.append(p.getName() + " ");
-		}
-		players.append("\n");
+	public void sendUpdate(String players) {
+		players = players + "\n";
 		try {
-			out.write(Constants.Protocol.SEND_PLAYERS + " " + players);
+			out.write(Constants.Protocol.SEND_PLAYERS + players);
 			out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();

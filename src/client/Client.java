@@ -101,10 +101,10 @@ public class Client implements Runnable {
 				} else if(inputWords[0].equals(Constants.Protocol.SEND_CHAT)){
 					lobby.receivedChat("Server", inputWords);
 				}
-				if (state.equals(Constants.STATE_INGAME)) {
-					if (inputWords[0].equals(Constants.Protocol.MAKE_MOVE)) {
-						makeMove(inputWords[1]);
-					}
+			}
+			if (state.equals(Constants.STATE_INGAME)) {
+				if (inputWords[0].equals(Constants.Protocol.MAKE_MOVE)) {
+					makeMove(inputWords[1]);
 				}
 			}
 		}
@@ -121,7 +121,7 @@ public class Client implements Runnable {
 
 	public void logIn() {
 		try {
-			out.write(Constants.Protocol.SEND_HELLO + " " + name + " " + "111"
+			out.write(Constants.Protocol.SEND_HELLO + " " + "111"  + " " + name
 					+ "\n");
 			out.flush();
 		} catch (IOException e) {
@@ -197,8 +197,6 @@ public class Client implements Runnable {
 	public void goToLobby() {
 		System.out.println("In goToLobby");
 		lobby = new Lobby(this);
-		Thread lobbyThread = new Thread(lobby);
-		lobbyThread.start();
 		state = Constants.STATE_LOBBY;
 	}
 
@@ -285,16 +283,16 @@ public class Client implements Runnable {
 	public String getName() {
 		return name;
 	}
-	
+
 	public void displayErrorNoLobby(String errorMsg, ClientGUI gui){
 		String[] options = new String[]{"OK"};
 		JOptionPane.showOptionDialog(gui, errorMsg, "Error occurred.", JOptionPane.DEFAULT_OPTION, 
 				JOptionPane.ERROR_MESSAGE, null, options, options[0]);
 		name = gui.askForName();
 		logIn();
-		
+
 	}
-	
+
 	public void checkInputName(String[] inputWords){
 		if (inputWords[0].equals(Constants.Protocol.SEND_HELLO)) {
 			goToLobby();

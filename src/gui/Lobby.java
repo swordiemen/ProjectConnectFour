@@ -6,7 +6,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JList;
-
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -14,6 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
+import javax.swing.SwingUtilities;
 
 import client.Client;
 
@@ -41,6 +41,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 	JButton quitButton;
 	DefaultListModel<String> listModel;
 	List<String> playerList;
+	private String msg;
 
 	/**
 	 * Launch the application.
@@ -64,8 +65,11 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 	 * Starts a new <code>Lobby</code>.
 	 */
 	public void run(){
-		Lobby frame = new Lobby(client);
-		frame.setVisible(true);
+		chatboxPane.setText(chatboxPane.getText() + msg + "\n");
+		listModel.clear();
+		for(String name:playerList){
+			listModel.addElement(name);
+		}
 	}
 
 	/**
@@ -74,6 +78,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 	public Lobby(Client argClient) {
 		client = argClient;
 		setUp();
+		setVisible(true);
 	}
 
 
@@ -152,9 +157,6 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		quitButton.addActionListener(this);
 		contentPane.add(quitButton);
 		chatboxPane.setText("Welkom " + client.getName() + ".\n");
-
-
-
 	}
 
 	/**
@@ -227,13 +229,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 	public void setPlayerList(List<String> argPlayerList){
 		System.out.println("setPlayerList()");
 		playerList = argPlayerList;
-		System.out.println(playerList);
-		listModel.clear();
-		for(String name:playerList){
-			listModel.addElement(name);
-		}
-		playerListList = new JList<String>(listModel);
-		repaint(); //zou niet nodig moeten zijn
+		SwingUtilities.invokeLater(this);
 	}
 
 	/**
@@ -247,10 +243,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		for(int i = 1; i < msgArray.length; i++){
 			sb.append(" " + msgArray[i]);
 		}
-		String msg = sb.toString();
-		sendButton.setEnabled(false);
-		System.out.println("received chat?!!!!!!!");
-		chatboxPane.setText("Lol");
-		chatboxPane.setText(chatboxPane.getText() + sender + ":" + msg + "\n" + "BWAH");
+		msg = sb.toString();
+		SwingUtilities.invokeLater(this);
 	}
 }

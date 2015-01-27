@@ -118,9 +118,14 @@ public class Server implements Runnable {
 	}
 	
 	public void sendUpdatedPlayerList(){
+		StringBuilder players = new StringBuilder();
 		for(Peer p : peerList){
+			players.append(" " + p.getName());
+		}
+		for(Peer p : peerList){
+			System.out.println("Sending players to " + p.getName());
 			if(p.getState().equals(Constants.STATE_LOBBY)){
-				p.sendUpdate();
+				p.sendUpdate(players.toString());
 			}
 		}
 	}
