@@ -144,4 +144,18 @@ public class Game extends Observable {
 	public boolean isGameOver() {
 		return board.isGameOver();
 	}
+
+	public void setPlayers(ArrayList<Player> argPlayers) {
+		reset(argPlayers);
+	}
+	
+	public Player getPlayerByName(String name){
+		Player res = null;
+		for(Player p : getPlayerList()){
+			if(p.getName().equals(name)){
+				res = p;
+			}
+		}
+		return res;
+	}
 }

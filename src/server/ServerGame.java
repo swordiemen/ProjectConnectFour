@@ -12,10 +12,19 @@ public class ServerGame extends Game {
 		System.out.println("Game wordt aangemaakt");
 		this.peers=new ArrayList<Peer>();
 		this.peers.addAll(ps);
+		super.setPlayers(createPlayerList(ps));
 		for (Peer p:ps) {
 			p.setGame(this);
 			p.startGame(peers);
 		}
+	}
+
+	public static ArrayList<Player> createPlayerList(ArrayList<Peer> ps) {
+		ArrayList<Player> res = new ArrayList<Player>();
+		for(Peer p : ps){
+			res.add(new Player(p.getName()));
+		}
+		return res;
 	}
 
 	/**
@@ -29,10 +38,8 @@ public class ServerGame extends Game {
 
 
 	public void takeTurn(int collumn) {
-		System.out.println("take Turn Server " + collumn);
 		try{
 			super.takeTurn(collumn);
-			System.out.println("After Super.takeTurn " + collumn);
 			for (Peer p:peers){
 				p.sendMove(collumn);
 			}
@@ -44,8 +51,16 @@ public class ServerGame extends Game {
 		}
 		if(super.isGameOver()){
 			for(Peer p: peers){
-				if(super.getWinner()!=null){
-					p.endGame(false, super.getPlayers().get(super.getWinner()));
+				if(super.getWinner() != null){
+					Mark winner = super.getWinner();
+					String winnerName = super.getPlayers().get(winner).getName();
+					String hue = "{";
+					for(Mark en : super.getPlayers().keySet()){
+						hue = hue + "Mark " + en + ", name " + super.getPlayers().get(en).getName() + "| ";
+					}
+					hue = hue + "}";
+					System.out.println(hue);
+					p.endGame(false, winnerName);
 				}else{
 					p.endGame(true);
 				}

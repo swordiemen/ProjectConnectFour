@@ -73,6 +73,7 @@ public class Peer implements Runnable {
 					this.setName(splitOutput[2]);
 					//if(server.isValidName(getName())){
 					byte[] options = new byte[Constants.NUMBER_OF_OPTIONS];
+					System.out.println("1: " + splitOutput[0] + " 2: " + splitOutput[1] + " 3: " + splitOutput[2]);
 					for(int i = 0; i < Constants.NUMBER_OF_OPTIONS; i++){
 						options[i] = Byte.parseByte(splitOutput[1].substring(i, i + 1));
 					}
@@ -222,7 +223,6 @@ public class Peer implements Runnable {
 	 */
 
 	public void startGame(ArrayList<Peer> peers) {
-		System.out.println("Peer starts Game");
 		this.state = Constants.STATE_INGAME;
 		try {
 			out.write(Constants.Protocol.MAKE_GAME + " "
@@ -277,11 +277,12 @@ public class Peer implements Runnable {
 		}
 	}
 
-	public void endGame(Boolean draw, Player player) {
+	public void endGame(Boolean draw, String winner) {
 		try{
-			out.write(Constants.Protocol.SEND_GAME_OVER + " " + draw +  
-					player.getName() + "\n" );
+			out.write(Constants.Protocol.SEND_GAME_OVER + " " + draw + " " + 
+					winner + "\n" );
 			out.flush();
+			state = Constants.STATE_LOBBY;
 		}catch (IOException e){
 			e.printStackTrace();
 		}
@@ -291,6 +292,7 @@ public class Peer implements Runnable {
 		try{
 			out.write(Constants.Protocol.SEND_GAME_OVER + " " + draw + "\n" );
 			out.flush();
+			state = Constants.STATE_LOBBY;
 		}catch (IOException e){
 			e.printStackTrace();
 		}

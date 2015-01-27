@@ -31,7 +31,8 @@ public class Client implements Runnable {
 	boolean exit = false;
 	private String opponent;
 	private Lobby lobby;
-	private boolean challenged;
+	private boolean challenged = false;
+	private JFrame frame;
 
 	public Client(InetAddress address, int port, String Name) {
 		name = Name;
@@ -100,6 +101,10 @@ public class Client implements Runnable {
 					sendUpdatePlayers(inputWords);
 				} else if(inputWords[0].equals(Constants.Protocol.SEND_CHAT)){
 					lobby.receivedChat("Server", inputWords);
+				} else if(inputWords[0].equals(Constants.Protocol.SEND_CHALLENGE)){
+					challengeAccepted("ACCEPT");
+				} else if(inputWords[0].equals(Constants.Protocol.SEND_CHALLENGE_CANCELLED)){
+					challengeRefused("DECLINE");
 				}
 			}
 			if (state.equals(Constants.STATE_INGAME)) {
@@ -185,7 +190,7 @@ public class Client implements Runnable {
 	public void sendChallenge(String name) {
 		if (!challenged) {
 			try {
-				out.write(Constants.Protocol.SEND_CHALLENGE + name + "\n");
+				out.write(Constants.Protocol.SEND_CHALLENGE + " "+ name + "\n");
 				out.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -210,13 +215,13 @@ public class Client implements Runnable {
 			ownMark = Mark.YELLOW;
 			opponent = player1;
 		}
-		GameGui gameGui = new GameGui(game, ownMark);
+		GameGui gameGui = new GameGui(game, ownMark, this);
 		game.addObserver(gameGui);
 		gameGui.addPlayer(new HumanPlayer(player1));
 		gameGui.addPlayer(new HumanPlayer(player2));
 		game.reset(gameGui.getPlayerList());
 		game.start();
-		JFrame frame = new JFrame();
+		frame = new JFrame();
 		frame.add(gameGui);
 		frame.setSize(933, 800);
 		frame.setVisible(true);
@@ -240,23 +245,23 @@ public class Client implements Runnable {
 	}
 
 	public void challengeAccepted(String name) {
+		challenged = false;
 		try {
 			out.write(Constants.Protocol.ACCEPT_CHALLENGE + "\n");
 			out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		challenged = false;
 	}
 
 	public void challengeRefused(String name) {
+		challenged = false;
 		try {
 			out.write(Constants.Protocol.REJECT_CHALLENGE + "\n");
 			out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		challenged = false;
 	}
 
 	public void playAgain() {
@@ -304,7 +309,11 @@ public class Client implements Runnable {
 						reason.append(" " + inputWords[i]);
 					}
 				}
-				displayError("Je naam is ongeldig met reden: " + reason);
+				if(reason.length() > 0){
+					displayError("Je naam is ongeldig met reden: " + reason);
+				}else{
+					displayError("Je naam is ongeldig (geen reden gegeven)");
+				}
 			}else{
 				displayError("We krijgen een error van de server.\n Wij weten ook niet waarom.");
 			}
@@ -312,5 +321,14 @@ public class Client implements Runnable {
 		else {
 			System.out.println("Faal in checkInputName");
 		}
+	}
+	
+	public void quitGame(){
+		frame.dispose();
+		state = Constants.STATE_LOBBY;
+	}
+	
+	public String getOpponent(){
+		return opponent;
 	}
 }

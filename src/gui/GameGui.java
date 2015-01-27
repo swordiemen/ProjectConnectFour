@@ -9,8 +9,10 @@ import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
@@ -249,11 +251,16 @@ public class GameGui extends Container implements Observer, ActionListener {
 			if(isOfflineGame()){
 				System.exit(0);
 			}else{
-				//gc.getClient().goToLobby();
+				gc.getClient().quitGame();
 			}
 		}else if(restartButton.equals(source)){
-			gc.getGame().reset(playerList);
-			gc.getGame().start();
+			if(isOfflineGame()){
+				gc.getGame().reset(playerList);
+				gc.getGame().start();
+			}else{
+				gc.getClient().quitGame();
+				gc.getClient().challenged(gc.getClient().getOpponent());
+			}
 		}
 	}
 	

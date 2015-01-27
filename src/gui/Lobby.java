@@ -65,7 +65,10 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 	 * Starts a new <code>Lobby</code>.
 	 */
 	public void run(){
-		chatboxPane.setText(chatboxPane.getText() + msg + "\n");
+		if(msg != null){
+			chatboxPane.setText(chatboxPane.getText() + msg + "\n");
+		}
+		msg = null;
 		listModel.clear();
 		for(String name:playerList){
 			listModel.addElement(name);
@@ -208,8 +211,8 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 			}
 		}else if(sendButton.equals(source)){
 //			if(whisperBox.getSelectedIndex() == 0){
-////				byte b = (byte) 0x101;
-////				System.out.println("1e: " + b % 2 + " 2e: " + (b >> 1 % 2) + " 3e: " + (b >> 2 % 2));
+//				byte b = (byte) 0x101;
+//				System.out.println("1e: " + b % 2 + " 2e: " + (b >> 1 % 2) + " 3e: " + (b >> 2 % 2));
 //				//client.sendTell(chatField.getText());
 //			}else{
 //				
