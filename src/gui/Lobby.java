@@ -43,23 +43,23 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 	List<String> playerList;
 	private String msg;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					//Client c = new Client(InetAddress.getByName("localhost"), 1338, "Sjon");
-					Client c = Client.createClient(new ClientGUI());
-					Lobby frame = new Lobby(c);
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+//	/**
+//	 * Launch the application.
+//	 */
+//	public static void main(String[] args) {
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					//Client c = new Client(InetAddress.getByName("localhost"), 1338, "Sjon");
+//					Client c = Client.createClient(new ClientGUI());
+//					Lobby frame = new Lobby(c);
+//					frame.setVisible(true);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//	}
 
 	/**
 	 * Starts a new <code>Lobby</code>.
