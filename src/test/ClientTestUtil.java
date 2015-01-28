@@ -15,12 +15,4 @@ public class ClientTestUtil {
 	public void setLastInput(String lastInput) {
 		this.lastInput = lastInput;
 	}
-
-	public boolean isGotHello() {
-		return gotHello;
-	}
-
-	public void setGotHello(boolean gotHello) {
-		this.gotHello = gotHello;
-	}
 }

@@ -170,7 +170,7 @@ public class Game extends Observable {
 	public void takeTurn(int c) throws FalseMoveException {
 		if (isIllegalMove(c)) {
 			throw new FalseMoveException(
-					"Je kunt geen disc in een volle rij gooien. Of je gooit mis. ");
+					"Je kunt geen disc in een volle rij gooien, of buiten het spelbord gooien.");
 		}
 		board.addToCol(c, current);
 		current = current.next();

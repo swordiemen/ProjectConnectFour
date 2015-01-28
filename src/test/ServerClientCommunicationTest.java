@@ -54,7 +54,6 @@ public class ServerClientCommunicationTest implements Constants, Constants.Proto
 		try {
 			wait(250);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		assertEquals("logIn(), server should return a hello as response", "hello 110 client1",
@@ -79,7 +78,6 @@ public class ServerClientCommunicationTest implements Constants, Constants.Proto
 		try {
 			c2 = new Client(InetAddress.getLocalHost(), 1338, "client1", ctu2);
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		Thread c2t = new Thread(c2);
@@ -87,7 +85,6 @@ public class ServerClientCommunicationTest implements Constants, Constants.Proto
 		try {
 			this.wait(250);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		assertTrue("Test if the server gives us an error.",
@@ -97,11 +94,18 @@ public class ServerClientCommunicationTest implements Constants, Constants.Proto
 
 	@Test
 	public synchronized void testChallenge() {
+		try {
+			c = new Client(InetAddress.getByName("localhost"), 1338, "client1", ctu);
+		} catch (UnknownHostException e) {
+			exceptionThrown = true;
+			e.printStackTrace();
+		}
+		clientThread = new Thread(c);
+		clientThread.start();
 		Client c2 = null;
 		try {
 			c2 = new Client(InetAddress.getLocalHost(), 1338, "client2", ctu2);
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		Thread c2t = new Thread(c2);
@@ -109,21 +113,18 @@ public class ServerClientCommunicationTest implements Constants, Constants.Proto
 		try {
 			this.wait(600);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		c2.sendChallenge("client1");
 		try {
 			this.wait(600);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		c.challengeAccepted("client2");
 		try {
 			this.wait(500);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		ArrayList<Peer> peers = testServer.getPeerList();
@@ -137,7 +138,7 @@ public class ServerClientCommunicationTest implements Constants, Constants.Proto
 		assertEquals("client1 should be inGame after accepting.", STATE_INGAME, cPeer.getState());
 	}
 
-	// @Test
+	@Test
 	public synchronized void testQuit() {
 		c.quit();
 		try {
@@ -147,11 +148,6 @@ public class ServerClientCommunicationTest implements Constants, Constants.Proto
 		}
 		ArrayList<Peer> peers = testServer.getPeerList();
 		boolean containsMe = false;
-		String peersYo = "";
-		for (Peer p : peers) {
-			peersYo = " " + p.getName();
-		}
-		System.out.println(peersYo);
 		for (Peer p : peers) {
 			if (p.getName().equals("client1")) {
 				containsMe = true;

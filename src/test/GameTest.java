@@ -16,7 +16,7 @@ public class GameTest {
 	ArrayList<Player> players;
 
 	@Before
-	public void SetUp() {
+	public void setUp() {
 		p1 = new Player("Player1");
 		p2 = new Player("Player2");
 		players = new ArrayList<Player>();
@@ -46,19 +46,20 @@ public class GameTest {
 	@Test
 	public void testReset() {
 		try {
-			for (int i = 0; i < Constants.ROWS; i++) {
+			for (int i = 0; i < Constants.ROWS + 1; i++) {
 				g.takeTurn(1);
 			}
 		} catch (FalseMoveException e) {
 			e.printStackTrace();
 		}
 		g.reset(players);
-		assertEquals("reset(players)", Mark.EMPTY, g.getBoard().getField(1));
+		assertEquals("reset(players)", Mark.EMPTY, g.getBoard().getField(8));
+		assertEquals("reset(players)", Mark.EMPTY, g.getBoard().getField(15));
 		assertEquals("Checking if reset reset the current mark", Mark.RED, g.getCurrent());
 	}
 
 	@Test
-	public void testSimulateMultipleGames() {
+	public void testSimulateConsecutiveGames() {
 		try {
 			for (int i = 0; i < 4; i++) {
 				g.takeTurn(i);
