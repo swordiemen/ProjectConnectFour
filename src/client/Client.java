@@ -88,11 +88,13 @@ public class Client implements Runnable {
 			}
 			System.out.println("SERVER SAYS " + input);
 			if (input != null) {
-				ctu.setLastInput(input);
+				if(ctu!=null){
+					ctu.setLastInput(input);
+				}
 				inputWords = input.split(" ");
 				if (state.equals(Constants.STATE_START)) {
 					checkInputName(inputWords);
-												
+
 				}
 				if (state.equals(Constants.STATE_LOBBY)) {
 					if (inputWords[0].equals(Constants.Protocol.MAKE_GAME)) {
@@ -174,7 +176,7 @@ public class Client implements Runnable {
 	public void logIn() {
 		try {
 			out.write(Constants.Protocol.SEND_HELLO + " " + Constants.CLIENT_OPTIONS + " " + name
-					  + "\n");
+					+ "\n");
 			out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -449,7 +451,7 @@ public class Client implements Runnable {
 	public void displayErrorNoLobby(String errorMsg, ClientGUI gui) {
 		String[] options = new String[] {"OK"};
 		JOptionPane.showOptionDialog(gui, errorMsg, "Error occurred.", JOptionPane.DEFAULT_OPTION,
-				  JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+				JOptionPane.ERROR_MESSAGE, null, options, options[0]);
 		System.exit(0);
 
 	}
@@ -465,8 +467,8 @@ public class Client implements Runnable {
 		if (inputWords[0].equals(Constants.Protocol.SEND_HELLO)) {
 			goToLobby();
 		} else if (inputWords[0].equals(Constants.Protocol.SEND_ERROR_INVALIDNAME.split(" ")[0])
-				  && inputWords[1].equals(
-				    Constants.Protocol.SEND_ERROR_INVALIDNAME.split(" ")[1])) {
+				&& inputWords[1].equals(
+						Constants.Protocol.SEND_ERROR_INVALIDNAME.split(" ")[1])) {
 			StringBuilder reason = new StringBuilder();
 			if (inputWords.length > 2) {
 				for (int i = 2; i < inputWords.length; i++) {

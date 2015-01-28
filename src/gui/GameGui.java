@@ -79,7 +79,6 @@ public class GameGui extends Container implements Observer, ActionListener {
 					try {
 						// if(game.getBoard().deepCopy().isFullColumn(getCol(i))){
 						// // Superfluous?
-						System.out.println("HA");
 						game.takeTurn(getCol(i));
 						// }
 
@@ -252,7 +251,6 @@ public class GameGui extends Container implements Observer, ActionListener {
 		Game game = new Game();
 		GameGui gameGui = new GameGui(game);
 		game.addObserver(gameGui);
-		// gameGui.addPlayer(new HumanPlayer("Henk"));
 		gameGui.addPlayer(new ComputerPlayer(new OneStepAheadStrategy()));
 		gameGui.addPlayer(new ComputerPlayer(new OneStepAheadStrategy()));
 		game.reset(gameGui.getPlayerList());

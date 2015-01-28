@@ -53,7 +53,7 @@ public class ClientApplication {
 			case 2:
 				startAIGame(namePlayer, JOptionPane.showOptionDialog(gui, "Choose your player type",
 						  "Player type", JOptionPane.OK_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-						  new String[] {"Easy", "Medium", "Hard"}, 2));
+						  new String[] {"Easiest", "Easier", "Easy"}, 2));
 				break;
 		}
 	}
@@ -111,13 +111,13 @@ public class ClientApplication {
 		ComputerPlayer ai = null;
 		switch (aILevel) {
 			case 0:
-				ai = new ComputerPlayer(new RandomStrategy());
+				ai = new ComputerPlayer(new LosingStrategy());
 				break;
 			case 1:
-				ai = new ComputerPlayer(new OneStepAheadStrategy());
+				ai = new ComputerPlayer(new RandomStrategy());
 				break;
 			case 2:
-				ai = new ComputerPlayer(new PerfectStrategy());
+				ai = new ComputerPlayer(new OneStepAheadStrategy());
 		}
 		players.add(ai);
 		Game game = new AIGame(players);
