@@ -8,43 +8,45 @@ public enum Mark {
 	EMPTY, RED, YELLOW;
 
 	/**
-	 * Gives the next Mark. If this is empty, the next will always be empty. 
+	 * Gives the next Mark. If this is empty, the next will always be empty.
+	 * 
 	 * @return
 	 */
-	public Mark next(){
+	public Mark next() {
 		Mark res;
-		if(this == RED){
+		if (this == RED) {
 			res = YELLOW;
-		}else if(this == YELLOW){
+		} else if (this == YELLOW) {
 			res = RED;
-		}else{
+		} else {
 			res = EMPTY;
 		}
 		return res;
-		
+
 	}
 
 	/**
 	 * Returns a Color based on the current Mark.
+	 * 
 	 * @return The Color based on the current Mark.
 	 */
-	public Color toColor(){
+	public Color toColor() {
 		Color color = null;
-		//TODO: make it a switch
-//		switch(this){
-//		case RED:
-//			color = Constants.RED;
-//		case YELLOW:
-//			color = Constants.YELLOW;
-//		default:
-//			color = Constants.EMPTY;
-//		}
-//		return color;
-		if(this == RED){
+		// TODO: make it a switch
+		// switch(this){
+		// case RED:
+		// color = Constants.RED;
+		// case YELLOW:
+		// color = Constants.YELLOW;
+		// default:
+		// color = Constants.EMPTY;
+		// }
+		// return color;
+		if (this == RED) {
 			color = Constants.RED;
-		}else if(this == YELLOW){
+		} else if (this == YELLOW) {
 			color = Constants.YELLOW;
-		}else{
+		} else {
 			color = Constants.WHITE;
 		}
 		return color;
@@ -52,22 +54,24 @@ public enum Mark {
 
 	/**
 	 * Returns a Mark, given a String.
-	 * @param s The String of a Mark.
+	 * 
+	 * @param s
+	 *            The String of a Mark.
 	 * @return The Mark corresponding to the String.
 	 */
-	public Mark getMarkByString(String s){
+	public Mark getMarkByString(String s) {
 		Mark res = null;
-		if(s.equals("RED") || s.equals("red") || s.equals("Red")){
+		if (s.equals("RED") || s.equals("red") || s.equals("Red")) {
 			res = RED;
-		}else if(s.equals("YELLOW") || s.equals("yellow") || s.equals("Yellow")){
+		} else if (s.equals("YELLOW") || s.equals("yellow") || s.equals("Yellow")) {
 			res = YELLOW;
-		}else if(s.equals("EMPTY") || s.equals("empty") || s.equals("Empty")){
+		} else if (s.equals("EMPTY") || s.equals("empty") || s.equals("Empty")) {
 			res = EMPTY;
 		}
 		return res;
 	}
-	
-	public String toString(){
+
+	public String toString() {
 		return super.toString().toLowerCase();
 	}
 }

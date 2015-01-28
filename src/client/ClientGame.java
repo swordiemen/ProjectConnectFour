@@ -1,21 +1,27 @@
 package client;
+
 import exceptions.FalseMoveException;
 import model.Game;
-public class ClientGame extends Game{
+
+public class ClientGame extends Game {
 	private Client client;
-	
+
 	/**
 	 * Creates a new clientGame.
-	 * @param client The client of this clientGame.
+	 * 
+	 * @param client
+	 *            The client of this clientGame.
 	 */
-	public ClientGame(Client client){
+	public ClientGame(Client argClient) {
 		super();
-		this.client= client;
+		this.client = argClient;
 	}
-	public void takeTurn(int collumn){
+
+	public void takeTurn(int collumn) {
 		client.sendTurn(collumn);
 	}
-	public void doTurn(int collumn) throws FalseMoveException{
+
+	public void doTurn(int collumn) throws FalseMoveException {
 		super.takeTurn(collumn);
 	}
 }

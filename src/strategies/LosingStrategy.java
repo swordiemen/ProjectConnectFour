@@ -29,30 +29,31 @@ public class LosingStrategy implements Strategy {
 		Board copy;
 		Random r = new Random();
 		List<Integer> winningCols = new ArrayList<Integer>();
-		for(int c = 0; c < b.getCol(); c++){
+		for (int c = 0; c < b.getCol(); c++) {
 			copy = b.deepCopy();
-			if(!copy.isFullColumn(c)){
-				if(copy.getWinner() == g.getCurrent().next()){
+			if (!copy.isFullColumn(c)) {
+				if (copy.getWinner() == g.getCurrent().next()) {
 					winningCols.add(c);
 				}
 			}
 		}
-		for(int c = 0; c < b.getCol(); c++){
+		for (int c = 0; c < b.getCol(); c++) {
 			copy = b.deepCopy();
-			if(!copy.isFullColumn(c)){
+			if (!copy.isFullColumn(c)) {
 				copy.addToCol(c, g.getCurrent());
-				if(copy.getWinner() == g.getCurrent()){
+				if (copy.getWinner() == g.getCurrent()) {
 					winningCols.add(c);
 				}
 			}
 		}
 		List<Integer> cols = new ArrayList<Integer>();
-		for(int i = 0; i < b.getCol(); i++){
-			if(!(winningCols.contains(i)) && !(b.isFullColumn(i))){
+		for (int i = 0; i < b.getCol(); i++) {
+			if (!(winningCols.contains(i)) && !(b.isFullColumn(i))) {
 				cols.add(i);
 			}
 		}
-		res = cols.size() == 0 ? new RandomStrategy().determineMove(g) : cols.get(r.nextInt(cols.size()));
+		res = cols.size() == 0 ? new RandomStrategy().determineMove(g) : cols.get(r.nextInt(cols
+				.size()));
 		return res;
 	}
 

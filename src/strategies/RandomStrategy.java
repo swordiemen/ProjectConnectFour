@@ -10,10 +10,11 @@ import model.Game;
 
 public class RandomStrategy implements Strategy {
 	private String name;
-	
-	public RandomStrategy(){
+
+	public RandomStrategy() {
 		name = "Random";
 	}
+
 	@Override
 	public String getName() {
 		return name;
@@ -24,8 +25,8 @@ public class RandomStrategy implements Strategy {
 		Board b = g.getBoard();
 		int result = -1;
 		List<Integer> possibleMoves = new ArrayList<Integer>();
-		for(int i = 0; i < b.getCol(); i++){
-			if(b.getNextEntryInColumn(i) != -1){
+		for (int i = 0; i < b.getCol(); i++) {
+			if (b.getNextEntryInColumn(i) != -1) {
 				possibleMoves.add(i);
 			}
 		}

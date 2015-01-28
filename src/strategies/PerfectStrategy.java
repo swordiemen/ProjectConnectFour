@@ -7,11 +7,11 @@ import model.Mark;
 
 public class PerfectStrategy implements Strategy {
 	String name;
-	
+
 	public PerfectStrategy() {
 		name = "Perfect";
 	}
-	
+
 	public int determineMove(Game g) {
 		return determineBoth(g.getBoard(), g.getCurrent())[1];
 	}
@@ -32,7 +32,7 @@ public class PerfectStrategy implements Strategy {
 	}
 
 	public int determineQual(Board b, Mark m, int move) {
-		int oppQual[];
+		int[] oppQual;
 		int qual;
 		Board testBoard = b.deepCopy();
 		testBoard.setField(move, m);
@@ -52,7 +52,6 @@ public class PerfectStrategy implements Strategy {
 		}
 		return qual;
 	}
-
 
 	@Override
 	public String getName() {

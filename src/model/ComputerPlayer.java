@@ -5,12 +5,12 @@ import strategies.Strategy;
 
 public class ComputerPlayer extends Player {
 	private Strategy strategy;
-	
-	public ComputerPlayer(Strategy strat){
+
+	public ComputerPlayer(Strategy strat) {
 		super(strat.getName());
 		strategy = strat;
 	}
-	
+
 	@Override
 	public void requestMove(Game game) {
 		try {
@@ -20,7 +20,7 @@ public class ComputerPlayer extends Player {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return strategy.getName();

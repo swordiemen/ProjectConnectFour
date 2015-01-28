@@ -12,8 +12,8 @@ import model.Leaderboard;
 import constants.Constants;
 
 /**
- * Server for the ConnectFour game.
- * serverGameList is a list of all the games running on the server
+ * Server for the ConnectFour game. serverGameList is a list of all the games
+ * running on the server
  * 
  * @author Yannick Mijsters & Tim Blok
  */
@@ -28,13 +28,14 @@ public class Server implements Runnable {
 	private boolean shutdown;
 	private int port;
 	private Leaderboard leaderboard; // not used
-	
-	//@ private invariant twoPlayerList != null && twoPlayerList.size() >= 0 && twoPlayerList.size() < 2;
-	//@ private invariant peerList != null && peerList.size() >= 0;
-	//@ private invariant serverGameList != null && serverGameList.size() >= 0;
-	//@ private invariant lobbyList != null && lobbyList.size() >= 0;
-	//@ private invariant listenSocket != null;
-	//@ private invariant port > 0 && port < 65535;
+
+	// @ private invariant twoPlayerList != null && twoPlayerList.size() >= 0 &&
+	// twoPlayerList.size() < 2;
+	// @ private invariant peerList != null && peerList.size() >= 0;
+	// @ private invariant serverGameList != null && serverGameList.size() >= 0;
+	// @ private invariant lobbyList != null && lobbyList.size() >= 0;
+	// @ private invariant listenSocket != null;
+	// @ private invariant port > 0 && port < 65535;
 
 	/**
 	 * Changes the instance variable port
@@ -68,19 +69,23 @@ public class Server implements Runnable {
 		} catch (BindException e1) {
 			new ServerApplication(new ClientGUI());
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		while (!shutdown) {
+
 			try {
 				connection = listenSocket.accept();
 				peer = new Peer(connection, this);
-				//if(isValidName(peer.getName())){
-				this.peerList.add(peer);
-				//}
-				connection = null;
-				(new Thread(peer)).start();
-
-			} catch (Exception e) {
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+			// if(isValidName(peer.getName())){
+			this.peerList.add(peer);
+			// }
+			connection = null;
+			(new Thread(peer)).start();
+
 		}
 	}
 
@@ -93,7 +98,7 @@ public class Server implements Runnable {
 	 */
 	// @ requires peers != null;
 	// @ ensures getServerGameList().contains(new ServerGame(peers));
-	public void startNewGame(ArrayList<Peer> peers) {		
+	public void startNewGame(ArrayList<Peer> peers) {
 		ServerGame game = new ServerGame(peers);
 		serverGameList.add(game);
 	}
@@ -103,11 +108,12 @@ public class Server implements Runnable {
 	}
 
 	/**
-	 * Adds a player to this twoPlayerList. If the size is 2, creates (a) Game(s) until < 2 players are left.
+	 * Adds a player to this twoPlayerList. If the size is 2, creates (a)
+	 * Game(s) until < 2 players are left.
 	 */
-	//@ requires peerin != null;
-	//@ ensures twoPlayerList.size() == 2 => !twoPlayerList.contains(peerin);
-	//@ ensures twoPlayerList.siez() < 2 => twoPlayerList.contains(peerin);
+	// @ requires peerin != null;
+	// @ ensures twoPlayerList.size() == 2 => !twoPlayerList.contains(peerin);
+	// @ ensures twoPlayerList.siez() < 2 => twoPlayerList.contains(peerin);
 	public synchronized void addPlayer(Peer peerin) {
 		twoPlayerList.add(peerin);
 		if (twoPlayerList.size() == 2) {
@@ -118,30 +124,33 @@ public class Server implements Runnable {
 
 	/**
 	 * Removes a Peer from the lobbyList and peerList.
-	 * @param p The peer to be removed.
+	 * 
+	 * @param p
+	 *            The peer to be removed.
 	 */
-	//@ requires p != null;
-	//@ ensures !peerList.contains(p) && !lobbyList.contains(p);
-	public void removePlayer(Peer p){
+	// @ requires p != null;
+	// @ ensures !peerList.contains(p) && !lobbyList.contains(p);
+	public void removePlayer(Peer p) {
 		peerList.remove(p);
-		if(lobbyList.contains(p)){
+		if (lobbyList.contains(p)) {
 			removeFromLobbyList(p);
 		}
 	}
-	
+
 	/**
-	 * Sends a list of players to all the Peers in the LobbyList. The format is "nameOfPlayer, optionsOfPlayer ".
+	 * Sends a list of players to all the Peers in the LobbyList. The format is
+	 * "nameOfPlayer, optionsOfPlayer ".
 	 */
-	/*@ pure @*/public void sendUpdatedPlayerList(){
-		if(lobbyList.size() > 0){
+	/* @ pure @ */public void sendUpdatedPlayerList() {
+		if (lobbyList.size() > 0) {
 			StringBuilder players = new StringBuilder();
 			players.append(" ");
-			for(Peer p : lobbyList){
+			for (Peer p : lobbyList) {
 				players.append(p.getName() + " " + p.getOptions() + ", ");
 			}
 			players.delete(players.length() - 2, players.length());
 			System.out.println(players.toString());
-			for(Peer p : lobbyList){
+			for (Peer p : lobbyList) {
 				System.out.println("Sending players to " + p.getName());
 				p.sendUpdate(players.toString());
 
@@ -158,14 +167,17 @@ public class Server implements Runnable {
 
 	/**
 	 * Sends a chat to everyone in the lobby.
-	 * @param splitOutput The message that the Peer gave us.
-	 * @param sender The sender of the message.
+	 * 
+	 * @param splitOutput
+	 *            The message that the Peer gave us.
+	 * @param sender
+	 *            The sender of the message.
 	 */
-	//@ requires splitOutput != null;
-	//@ requires sender != null;
+	// @ requires splitOutput != null;
+	// @ requires sender != null;
 	public void sendLobbyChat(String[] splitOutput, String sender) {
-		for(Peer p : peerList){
-			if(p.getState().equals(Constants.STATE_LOBBY)){
+		for (Peer p : peerList) {
+			if (p.getState().equals(Constants.STATE_LOBBY)) {
 				p.sendChat(splitOutput, sender, false);
 			}
 		}
@@ -173,20 +185,23 @@ public class Server implements Runnable {
 
 	/**
 	 * Checks if a given name is valid.
-	 * @param name The name to be checked.
-	 * @param peer The peer the name belongs to.
+	 * 
+	 * @param name
+	 *            The name to be checked.
+	 * @param peer
+	 *            The peer the name belongs to.
 	 * @return Whether the name is valid.
 	 */
-	//@ requires name != null;
-	//@ requires peer != null;
-	//@ ensures name.contains(" ") => \result == false;
-	public boolean isValidName(String name, Peer peer){
-		if(name.contains(" ")){
+	// @ requires name != null;
+	// @ requires peer != null;
+	// @ ensures name.contains(" ") => \result == false;
+	public boolean isValidName(String name, Peer peer) {
+		if (name.contains(" ")) {
 			return false;
-		}else{
-			if(peerList.size() > 0){
-				for(Peer p : peerList){
-					if(p.getName().equals(name) && p != peer){
+		} else {
+			if (peerList.size() > 0) {
+				for (Peer p : peerList) {
+					if (p.getName().equals(name) && p != peer) {
 						return false;
 					}
 				}
@@ -197,49 +212,57 @@ public class Server implements Runnable {
 
 	/**
 	 * Sends a chat to a specified Peer.
-	 * @param name The name of the peer.
-	 * @param message The message to be sent.
+	 * 
+	 * @param name
+	 *            The name of the peer.
+	 * @param message
+	 *            The message to be sent.
 	 */
-	//@ requires name != null;
-	//@ requires message != null; 
+	// @ requires name != null;
+	// @ requires message != null;
 	public void sendDirectedChat(String name, String message) {
 		String[] msg = message.split(" ");
-		for(Peer p : peerList){
-			if(p.getName().equals(name)){
+		for (Peer p : peerList) {
+			if (p.getName().equals(name)) {
 				p.sendChat(msg, "[Server]", true);
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns the lobbyList of this Server.
+	 * 
 	 * @return The lobbyList of this Server.
 	 */
-	/*@ pure @*/public ArrayList<Peer> getLobbyList(){
+	/* @ pure @ */public ArrayList<Peer> getLobbyList() {
 		return lobbyList;
 	}
-	
+
 	/**
 	 * Adds a Peer to this Server's lobbyList.
-	 * @param p The Peer to be added.
+	 * 
+	 * @param p
+	 *            The Peer to be added.
 	 */
-	//@ requires p != null;
-	//@ ensures lobbyList.contains(p);
-	public void addToLobbyList(Peer p){
-		if(!lobbyList.contains(p)){
+	// @ requires p != null;
+	// @ ensures lobbyList.contains(p);
+	public void addToLobbyList(Peer p) {
+		if (!lobbyList.contains(p)) {
 			lobbyList.add(p);
 			sendUpdatedPlayerList();
 		}
 	}
-	
+
 	/**
 	 * Removes a Peer from this Server's lobbyList.
-	 * @param p The Peer to be removed.
+	 * 
+	 * @param p
+	 *            The Peer to be removed.
 	 */
-	//@ requires p != null;
-	//@ ensures !lobbyList.contains(p);
-	public void removeFromLobbyList(Peer p){
-		if(lobbyList.contains(p)){
+	// @ requires p != null;
+	// @ ensures !lobbyList.contains(p);
+	public void removeFromLobbyList(Peer p) {
+		if (lobbyList.contains(p)) {
 			lobbyList.remove(p);
 			sendUpdatedPlayerList();
 		}

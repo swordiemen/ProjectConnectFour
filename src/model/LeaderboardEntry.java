@@ -6,8 +6,8 @@ public class LeaderboardEntry {
 	private String name;
 	private int score;
 	private Date date;
-	
-	public LeaderboardEntry(String argName, int argScore, Date argDate){
+
+	public LeaderboardEntry(String argName, int argScore, Date argDate) {
 		setName(argName);
 		setScore(argScore);
 		setDate(argDate);

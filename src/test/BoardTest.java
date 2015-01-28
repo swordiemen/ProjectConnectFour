@@ -1,4 +1,5 @@
 package test;
+
 import static org.junit.Assert.*;
 
 import org.junit.*;
@@ -8,26 +9,28 @@ import model.*;
 public class BoardTest {
 
 	Board b;
+
 	@Before
-	public void setUp(){
+	public void setUp() {
 		b = new Board(6, 7);
 		b.reset();
 	}
 
 	@Test
-	public void testGetSetField(){
+	public void testGetSetField() {
 		b.setField(10, Mark.RED);
 		assertEquals("Test getField(10)", Mark.RED, b.getField(10));
 	}
 
 	@Test
-	public void testReset(){
+	public void testReset() {
 		b.reset();
-		assertEquals("Test reset", Mark.EMPTY, b.getField(16)); //16 is een random waarde
+		//16 is een random waarde
+		assertEquals("Test reset", Mark.EMPTY, b.getField(16));
 	}
 
 	@Test
-	public void testRowColFieldGettersSetters(){
+	public void testRowColFieldGettersSetters() {
 		b.setField(3, 3, Mark.RED);
 		assertEquals("Test setField met row/col", Mark.RED, b.getField(24));
 		b.setField(24, Mark.YELLOW);
@@ -35,13 +38,13 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testIsEmpty(){
+	public void testIsEmpty() {
 		b.setField(3, 4, Mark.RED);
 		assertEquals("Testing isEmpty()", false, b.isEmpty(3, 4));
 	}
 
 	@Test
-	public void testGetNextEntryInColumn(){
+	public void testGetNextEntryInColumn() {
 		b.setField(3, 3, Mark.RED);
 		b.setField(4, 3, Mark.RED);
 		b.setField(5, 3, Mark.RED);
@@ -49,9 +52,9 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testAddToCol(){
-		for(int i = 0; i < 9; i++){
-			b.addToCol(3, Mark.RED);	
+	public void testAddToCol() {
+		for (int i = 0; i < 9; i++) {
+			b.addToCol(3, Mark.RED);
 		}
 		assertEquals("Testing adding a disc in row 3", false, b.isEmpty(24));
 		assertEquals("Testing adding a disc in row 3", false, b.isEmpty(31));
@@ -59,15 +62,15 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testIsFull(){
-		for(int i = 0; i < b.getCol() * b.getRow(); i++){
+	public void testIsFull() {
+		for (int i = 0; i < b.getCol() * b.getRow(); i++) {
 			b.setField(i, Mark.YELLOW);
 		}
 		assertEquals("Testing isFull()", true, b.isFull());
 	}
 
 	@Test
-	public void testHasRow(){
+	public void testHasRow() {
 		b.setField(3, 2, Mark.RED);
 		b.setField(3, 3, Mark.RED);
 		b.setField(3, 4, Mark.RED);
@@ -76,21 +79,21 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testHasCol(){
-		for(int i = 0; i < 4; i++){
+	public void testHasCol() {
+		for (int i = 0; i < 4; i++) {
 			b.addToCol(4, Mark.YELLOW);
 		}
 		assertEquals("Testing hasCol()", true, b.hasCol(Mark.YELLOW));
 	}
 
 	@Test
-	public void testGetRowAndColByIndex(){
+	public void testGetRowAndColByIndex() {
 		assertEquals("Testing getting a row by index.", 1, b.getRowByIndex(10));
 		assertEquals("Testing getting a col by index", 4, b.getColByIndex(25));
 	}
 
 	@Test
-	public void testHasDiagonalDescending(){
+	public void testHasDiagonalDescending() {
 		b.setField(0, 0, Mark.RED);
 		b.setField(1, 1, Mark.RED);
 		b.setField(2, 2, Mark.RED);
@@ -102,7 +105,7 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testHasDiagonalAscending(){
+	public void testHasDiagonalAscending() {
 		b.setField(0, 4, Mark.YELLOW);
 		b.setField(1, 3, Mark.YELLOW);
 		b.setField(2, 2, Mark.YELLOW);
@@ -113,7 +116,7 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testHasDiagonal(){
+	public void testHasDiagonal() {
 		b.setField(1, 3, Mark.RED);
 		b.setField(2, 4, Mark.RED);
 		b.setField(3, 5, Mark.RED);
@@ -131,26 +134,29 @@ public class BoardTest {
 		b.addToCol(6, Mark.YELLOW);
 		b.addToCol(6, Mark.YELLOW);
 		b.addToCol(6, Mark.RED);
-		assertEquals("Testing hasDiagonalAsc() with addToCol()", true, b.hasDiagonalAscending(5, 3, Mark.RED));
+		assertEquals("Testing hasDiagonalAsc() with addToCol()", true,
+				  b.hasDiagonalAscending(5, 3, Mark.RED));
 		assertEquals("Testing hasDiagonal() with addToCol()", true, b.hasDiagonal(Mark.RED));
 	}
 
 	@Test
-	public void testGetWinner(){
+	public void testGetWinner() {
 		assertEquals("Testing getWinner() on an empty board", null, b.getWinner());
-		for(int i = 0; i < 4; i++){
+		for (int i = 0; i < 4; i++) {
 			b.addToCol(i, Mark.YELLOW);
 		}
-		assertEquals("Testing getWinner() on a board where yellow has 4 in a row", Mark.YELLOW, b.getWinner());
+		assertEquals("Testing getWinner() on a board where yellow has 4 in a row", Mark.YELLOW,
+				  b.getWinner());
 		b.reset();
-		for(int i = 0; i < 4; i++){
+		for (int i = 0; i < 4; i++) {
 			b.addToCol(4, Mark.RED);
 		}
 
-		assertEquals("Testing getWinner() on a board where red has 4 in a column", Mark.RED, b.getWinner());
+		assertEquals("Testing getWinner() on a board where red has 4 in a column", Mark.RED,
+				  b.getWinner());
 		b.reset();
-		//simulating a game, where yellow manages to get a diagonal.
-		for(int i = 0; i < 4; i++){
+		// simulating a game, where yellow manages to get a diagonal.
+		for (int i = 0; i < 4; i++) {
 			b.addToCol(i, i % 2 == 0 ? Mark.YELLOW : Mark.RED);
 		}
 		b.addToCol(1, Mark.YELLOW);
@@ -159,8 +165,10 @@ public class BoardTest {
 		b.addToCol(3, Mark.RED);
 		b.addToCol(3, Mark.YELLOW);
 		b.addToCol(3, Mark.YELLOW);
-		System.out.println(b.getField(35).toString() + b.getField(29) + b.getField(23) + b.getField(17) + b.getField(18));
-		assertEquals("Testing getWinner() on a board where yellow has 4 in a diagonal", Mark.YELLOW, b.getWinner());
+		System.out.println(b.getField(35).toString() + b.getField(29) + b.getField(23)
+				  + b.getField(17) + b.getField(18));
+		assertEquals("Testing getWinner() on a board where yellow has 4 in a diagonal",
+				  Mark.YELLOW, b.getWinner());
 	}
 
 }
