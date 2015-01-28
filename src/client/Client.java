@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
@@ -70,8 +71,8 @@ public class Client implements Runnable {
 			try {
 				input = in.readLine();
 			} catch (IOException e) {
-				e.printStackTrace();
-			}
+				shutDown();
+			} 
 			System.out.println("SERVER SAYS " + input);
 			if(input !=null){
 				inputWords = input.split(" ");
@@ -110,6 +111,16 @@ public class Client implements Runnable {
 			}
 		}
 
+	}
+
+	public void shutDown() {
+		exit = true;
+		if(frame!=null){
+			displayError("The server has disconnected.");
+		}else{
+			displayErrorNoLobby("The server has disconnected", new ClientGUI());
+		}
+		System.exit(0);
 	}
 
 	/**
@@ -329,6 +340,7 @@ public class Client implements Runnable {
 	public void playAgain() {
 		goToLobby();
 		sendChallenge(opponent);
+		challenged=true;
 	}
 
 	/**
@@ -362,8 +374,7 @@ public class Client implements Runnable {
 		String[] options = new String[]{"OK"};
 		JOptionPane.showOptionDialog(gui, errorMsg, "Error occurred.", JOptionPane.DEFAULT_OPTION, 
 				JOptionPane.ERROR_MESSAGE, null, options, options[0]);
-		name = gui.askForName();
-		logIn();
+		System.exit(0);
 
 	}
 

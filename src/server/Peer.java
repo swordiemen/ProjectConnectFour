@@ -212,6 +212,7 @@ public class Peer implements Runnable {
 		server.sendDirectedChat(inChallenge.getName(), this.getName() + " has accepted your challenge.");
 		peers.add(this);
 		peers.add(inChallenge);
+		System.out.println("Start New Game");
 		server.startNewGame(peers);
 		inChallenge = null;
 	}

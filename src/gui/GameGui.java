@@ -38,16 +38,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 	JLabel turnLabel;
 	GameController gc;
 	Mark ownMark;
-	static BufferedImage bi;
-	static {
-		try{
-			bi = ImageIO.read(GameGui.class.getResource("bunchie.jpg"));
-		}catch(IOException e){
-			e.printStackTrace();
-		}
-	}
-	ImageIcon lama = new ImageIcon("bunchies.jpg", "lama");
-	
+		
 	//GameController-------------------------------------------------------------------------------------------------------------------------------
 	class GameController implements ActionListener {
 		private Game game;
@@ -173,8 +164,8 @@ public class GameGui extends Container implements Observer, ActionListener {
 	 */
 	public void setUp(){
 		fields = new JButton[ROWS * COLUMNS];
-		//turnLabel = new JLabel("It is red's turn.");
-		turnLabel = new JLabel(lama);
+		turnLabel = new JLabel("It is red's turn.");
+		//turnLabel = new JLabel(lama);
 		Container board = new Container();
 		GridLayout boardGrid = new GridLayout(ROWS, COLUMNS);
 		board.setLayout(boardGrid);
@@ -203,7 +194,6 @@ public class GameGui extends Container implements Observer, ActionListener {
 		for(int i = 0; i < ROWS * COLUMNS; i++){
 			fields[i].setEnabled(g.isEmpty(i) && !g.isGameOver() && isMyTurn());
 			fields[i].setBackground(g.getField(i).toColor());
-			turnLabel.setIcon(new ImageIcon("bunchie.jpg"));
 		}
 		if(g.isGameOver()){
 			if(g.getWinner() == null){
@@ -275,7 +265,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 				gc.getGame().start();
 			}else{
 				gc.getClient().quitGame();
-				gc.getClient().challenged(gc.getClient().getOpponent());
+				gc.getClient().playAgain();
 			}
 		}
 	}
