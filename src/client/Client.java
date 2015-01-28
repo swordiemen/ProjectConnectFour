@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import strategies.PerfectStrategy;
 import constants.Constants;
+import model.ComputerPlayer;
 import model.HumanPlayer;
 import model.Mark;
 import model.Player;
@@ -40,6 +42,7 @@ public class Client implements Runnable {
 	private Lobby lobby;
 	private boolean challenged = false;
 	private JFrame frame;
+	private ArrayList<String> lobbyList;
 
 	/**
 	 * Creates a new client. 
@@ -90,17 +93,19 @@ public class Client implements Runnable {
 						sendUpdatePlayers(inputWords);
 					} else if(inputWords[0].equals(Constants.Protocol.SEND_CHAT)){
 						lobby.receivedChat("Server", inputWords);
-					} else if(inputWords[0].equals(Constants.Protocol.ACCEPT_CHALLENGE)){
-						challengeAccepted("ACCEPT");
-					} else if(inputWords[0].equals(Constants.Protocol.REJECT_CHALLENGE)){
-						challengeRefused("DECLINE");
-					}
+					} else if(inputWords[0].equals(Constants.Protocol.SEND_CHALLENGE_CANCELLED)){
+						challengeCancelled();
+					} 
 				}
 				if (state.equals(Constants.STATE_INGAME)) {
 					if (inputWords[0].equals(Constants.Protocol.MAKE_MOVE)) {
 						makeMove(inputWords[1]);
 					}else if(inputWords[0].equals(Constants.Protocol.SEND_ERROR_INVALIDMOVE)){
 						displayError("Invalid move.");
+					}else if(inputWords[0].equals(Constants.Protocol.SEND_GAME_OVER)){
+						gameOver(inputWords);
+					}else if(inputWords[0].equals(Constants.Protocol.SEND_PLAYERS)){
+						backUpPlayers(inputWords);
 					}
 				}
 				if(inputWords[0].equals(Constants.Protocol.SEND_ERROR_INVALIDCOMMAND)){
@@ -113,9 +118,27 @@ public class Client implements Runnable {
 
 	}
 
+	private void challengeCancelled() {
+		challenged = false;
+		lobby.displayError("Challenge Cancelled: The Challenged person didn't accept");
+	}
+
+	private void backUpPlayers(String[] inputWords) {
+		lobbyList = new ArrayList<String>();
+		for(int i = 1; i < inputWords.length; i++){
+			lobbyList.add(inputWords[i]);
+		}
+	}
+
+	private void gameOver(String[] serverMessage) {
+		boolean draw = Boolean.parseBoolean(serverMessage[1]);
+		String winner = serverMessage[2];
+		challenged = false;
+	}
+
 	public void shutDown() {
 		exit = true;
-		if(frame!=null){
+		if(lobby!=null){
 			displayError("The server has disconnected.");
 		}else{
 			displayErrorNoLobby("The server has disconnected", new ClientGUI());
@@ -231,7 +254,7 @@ public class Client implements Runnable {
 	 */
 	public void sendChallenge(String challengedName) {
 		if(challengedName.equals(this.name)){
-			displayError("Je kunt jezelf niet challengen!");
+			displayError("Je kunt jezelf niet challengen!" + challenged);
 		}else{
 			if (!challenged) {
 				try {
@@ -241,6 +264,8 @@ public class Client implements Runnable {
 					e.printStackTrace();
 				}
 				challenged = true;
+			}else{
+				lobby.displayError("You are already Challenged " + challenged);
 			}
 		}
 	}
@@ -251,6 +276,9 @@ public class Client implements Runnable {
 	public void goToLobby() {
 		System.out.println("In goToLobby");
 		lobby = new Lobby(this);
+		if(lobbyList!=null){
+			lobby.setPlayerList(lobbyList);
+		}
 		state = Constants.STATE_LOBBY;
 	}
 
@@ -261,24 +289,35 @@ public class Client implements Runnable {
 	 */
 	public void createGame(String player1, String player2) {
 		game = new ClientGame(this);
+		ComputerPlayer player;
 		Mark ownMark;
+		
 		if (player1.equals(name)) {
 			ownMark = Mark.RED;
 			opponent = player2;
+			player = new ComputerPlayer(new PerfectStrategy());
 		} else {
 			ownMark = Mark.YELLOW;
 			opponent = player1;
+			player = new ComputerPlayer(new PerfectStrategy());
 		}
 		GameGui gameGui = new GameGui(game, ownMark, this);
+		if(player1.equals(name)){
+			gameGui.addPlayer(player);
+			gameGui.addPlayer(new HumanPlayer(player2));
+		}else{
+			gameGui.addPlayer(new HumanPlayer(player1));
+			gameGui.addPlayer(player);
+			
+		}
 		game.addObserver(gameGui);
-		gameGui.addPlayer(new HumanPlayer(player1));
-		gameGui.addPlayer(new HumanPlayer(player2));
 		game.reset(gameGui.getPlayerList());
 		game.start();
 		frame = new JFrame();
 		frame.add(gameGui);
 		frame.setSize(933, 800);
 		frame.setVisible(true);
+		lobby.dispose();
 		state = Constants.STATE_INGAME;
 	}
 
@@ -302,6 +341,8 @@ public class Client implements Runnable {
 		if (!challenged) {
 			lobby.challenged(name);
 			challenged = true;
+		}else{
+			lobby.displayError("You are already Challenged 1");
 		}
 
 	}
@@ -318,6 +359,7 @@ public class Client implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println(challenged);
 	}
 
 	/**
@@ -331,6 +373,7 @@ public class Client implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println(challenged);
 	}
 
 	/**
@@ -338,9 +381,7 @@ public class Client implements Runnable {
 	 * Basically functions as a challenge.
 	 */
 	public void playAgain() {
-		goToLobby();
 		sendChallenge(opponent);
-		challenged=true;
 	}
 
 	/**
@@ -375,7 +416,7 @@ public class Client implements Runnable {
 		JOptionPane.showOptionDialog(gui, errorMsg, "Error occurred.", JOptionPane.DEFAULT_OPTION, 
 				JOptionPane.ERROR_MESSAGE, null, options, options[0]);
 		System.exit(0);
-
+		
 	}
 
 	/**
@@ -413,7 +454,7 @@ public class Client implements Runnable {
 	 */
 	public void quitGame(){
 		frame.dispose();
-		state = Constants.STATE_LOBBY;
+		goToLobby();
 	}
 
 	/**

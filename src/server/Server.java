@@ -19,6 +19,7 @@ public class Server implements Runnable {
 	private ArrayList<Peer> twoPlayerList = new ArrayList<Peer>();
 	private ArrayList<Peer> peerList = new ArrayList<Peer>();
 	private ArrayList<ServerGame> serverGameList = new ArrayList<ServerGame>();
+	private ArrayList<Peer> lobbyList = new ArrayList<Peer>();
 	private ServerSocket listenSocket;
 	private Socket connection = null;
 	private Peer peer;
@@ -66,7 +67,7 @@ public class Server implements Runnable {
 				connection = listenSocket.accept();
 				peer = new Peer(connection, this);
 				//if(isValidName(peer.getName())){
-					this.peerList.add(peer);
+				this.peerList.add(peer);
 				//}
 				connection = null;
 				(new Thread(peer)).start();
@@ -112,20 +113,27 @@ public class Server implements Runnable {
 			twoPlayerList.clear();
 		}
 	}
-	
+
 	public void removePlayer(Peer p){
 		peerList.remove(p);
-	}
-	
-	public void sendUpdatedPlayerList(){
-		StringBuilder players = new StringBuilder();
-		for(Peer p : peerList){
-			players.append(" " + p.getName());
+		if(lobbyList.contains(p)){
+			removeFromLobbyList(p);
 		}
-		for(Peer p : peerList){
-			System.out.println("Sending players to " + p.getName());
-			if(p.getState().equals(Constants.STATE_LOBBY)){
+	}
+
+	public void sendUpdatedPlayerList(){
+		if(lobbyList.size() > 0){
+			StringBuilder players = new StringBuilder();
+			players.append(" ");
+			for(Peer p : lobbyList){
+				players.append(p.getName() + " " + p.getOptions() + ", ");
+			}
+			players.delete(players.length() - 2, players.length());
+			System.out.println(players.toString());
+			for(Peer p : lobbyList){
+				System.out.println("Sending players to " + p.getName());
 				p.sendUpdate(players.toString());
+
 			}
 		}
 	}
@@ -148,7 +156,7 @@ public class Server implements Runnable {
 			}
 		}
 	}
-	
+
 	public boolean isValidName(String name, Peer peer){
 		if(name.contains(" ")){
 			System.out.println("Er staat een spatie in de naam.");
@@ -172,6 +180,21 @@ public class Server implements Runnable {
 			if(p.getName().equals(name)){
 				p.sendChat(msg, "[Server]", true);
 			}
+		}
+	}
+	public ArrayList<Peer> getLobbyList(){
+		return lobbyList;
+	}
+	public void addToLobbyList(Peer p){
+		if(!lobbyList.contains(p)){
+			lobbyList.add(p);
+			sendUpdatedPlayerList();
+		}
+	}
+	public void removeFromLobbyList(Peer p){
+		if(lobbyList.contains(p)){
+			lobbyList.remove(p);
+			sendUpdatedPlayerList();
 		}
 	}
 

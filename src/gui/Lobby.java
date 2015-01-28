@@ -19,6 +19,8 @@ import client.Client;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,23 +45,23 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 	List<String> playerList;
 	private String msg;
 
-//	/**
-//	 * Launch the application.
-//	 */
-//	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					//Client c = new Client(InetAddress.getByName("localhost"), 1338, "Sjon");
-//					Client c = Client.createClient(new ClientGUI());
-//					Lobby frame = new Lobby(c);
-//					frame.setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//	}
+	//	/**
+	//	 * Launch the application.
+	//	 */
+	//	public static void main(String[] args) {
+	//		EventQueue.invokeLater(new Runnable() {
+	//			public void run() {
+	//				try {
+	//					//Client c = new Client(InetAddress.getByName("localhost"), 1338, "Sjon");
+	//					Client c = Client.createClient(new ClientGUI());
+	//					Lobby frame = new Lobby(c);
+	//					frame.setVisible(true);
+	//				} catch (Exception e) {
+	//					e.printStackTrace();
+	//				}
+	//			}
+	//		});
+	//	}
 
 	/**
 	 * Updates the Lobby.
@@ -160,6 +162,15 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 		quitButton.addActionListener(this);
 		contentPane.add(quitButton);
 		chatboxPane.setText("Welkom " + client.getName() + ".\n");
+		addWindowListener(new WindowAdapter()
+		{
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
+				client.quit();
+				System.exit(0);
+			}
+		});
 	}
 
 	/**
@@ -211,15 +222,15 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 				chatboxPane.setText(chatboxPane.getText() + "[Server] You must select a player to challenge.\n");
 			}
 		}else if(sendButton.equals(source)){
-//			if(whisperBox.getSelectedIndex() == 0){
-//				byte b = (byte) 0x101;
-//				System.out.println("1e: " + b % 2 + " 2e: " + (b >> 1 % 2) + " 3e: " + (b >> 2 % 2));
-//				//client.sendTell(chatField.getText());
-//			}else{
-//				
-//				//chatboxPane.setText(chatboxPane.getText() + "[Chat] Je target " + whisperBox.getSelectedItem() + ".\n");
-//				//client.sendWhisper(chatField.getText(), whisperBox.getSelectedItem());
-//			}
+			//			if(whisperBox.getSelectedIndex() == 0){
+			//				byte b = (byte) 0x101;
+			//				System.out.println("1e: " + b % 2 + " 2e: " + (b >> 1 % 2) + " 3e: " + (b >> 2 % 2));
+			//				//client.sendTell(chatField.getText());
+			//			}else{
+			//				
+			//				//chatboxPane.setText(chatboxPane.getText() + "[Chat] Je target " + whisperBox.getSelectedItem() + ".\n");
+			//				//client.sendWhisper(chatField.getText(), whisperBox.getSelectedItem());
+			//			}
 			client.sendChat(chatField.getText());
 			//client.sendMsg();
 		}

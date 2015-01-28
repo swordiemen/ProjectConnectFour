@@ -82,13 +82,13 @@ public class Peer implements Runnable {
 						canChallenge = options[1] % 2 == 1;
 						canLeaderboard = options[2] % 2 == 1;
 						try {
-							out.write(Constants.Protocol.SEND_HELLO + " " + name
+							out.write(Constants.Protocol.SEND_HELLO + " " + Constants.CLIENT_OPTIONS + " " + name
 									+ "\n");
 							out.flush();
 						} catch (IOException e) {
-							e.printStackTrace();
+							quit();
 						}
-						state = Constants.STATE_LOBBY;
+						goToLobby();
 						server.sendUpdatedPlayerList();
 					}else{
 						String reason = "Je naam bestaat al.";
@@ -99,7 +99,7 @@ public class Peer implements Runnable {
 							out.write(Constants.Protocol.SEND_ERROR_INVALIDNAME + " " + reason +"\n"); 
 							out.flush();
 						}catch(IOException e){
-							e.printStackTrace();
+							quit();
 							quit();
 						}
 					}
@@ -110,7 +110,7 @@ public class Peer implements Runnable {
 						out.flush();
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						quit();
 					}
 				}
 			}
@@ -130,6 +130,9 @@ public class Peer implements Runnable {
 				}
 				if(splitOutput[0].equals(Constants.Protocol.CHAT)){
 					server.sendLobbyChat(splitOutput, getName());
+				}
+				if(splitOutput[0].equals(Constants.Protocol.GET_LEADERBOARD)){
+					server.sendUpdatedPlayerList();
 				}
 			}
 			if (state.equals(Constants.STATE_INGAME)) {
@@ -166,7 +169,7 @@ public class Peer implements Runnable {
 			out.write(Constants.Protocol.MAKE_MOVE + " " + column + "\n");
 			out.flush();
 		} catch (IOException e) {
-			e.printStackTrace();
+			quit();
 		}
 	}
 
@@ -199,7 +202,7 @@ public class Peer implements Runnable {
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			quit();
 		}
 	}
 	
@@ -242,14 +245,15 @@ public class Peer implements Runnable {
 	 */
 
 	public void startGame(ArrayList<Peer> peers) {
-		this.state = Constants.STATE_INGAME;
+		server.removeFromLobbyList(this);
+		state = Constants.STATE_INGAME;
 		try {
 			out.write(Constants.Protocol.MAKE_GAME + " "
 					+ peers.get(0).getName() + " " + peers.get(1).getName()
 					+ "\n");
 			out.flush();
 		} catch (IOException e) {
-			e.printStackTrace();
+			quit();
 		}
 		System.out.println(state);
 	}
@@ -264,7 +268,7 @@ public class Peer implements Runnable {
 			out.write(Constants.Protocol.SEND_PLAYERS + players);
 			out.flush();
 		} catch (IOException e) {
-			e.printStackTrace();
+			quit();
 		}
 	}
 
@@ -296,7 +300,7 @@ public class Peer implements Runnable {
 			out.write(Constants.Protocol.SEND_CHALLENGE_CANCELLED + " " + reason + "\n");
 			out.flush();
 		}catch(IOException e){
-			e.printStackTrace();
+			quit();
 		}
 	}
 	
@@ -318,7 +322,7 @@ public class Peer implements Runnable {
 			out.write(Constants.Protocol.SEND_CHALLENGED + " " + p.getName() + "\n");
 			out.flush();
 		}catch (IOException e){
-			e.printStackTrace();
+			quit();
 		}
 	}
 
@@ -332,10 +336,16 @@ public class Peer implements Runnable {
 			out.write(Constants.Protocol.SEND_GAME_OVER + " " + draw + " " + 
 					winner + "\n" );
 			out.flush();
-			state = Constants.STATE_LOBBY;
+			goToLobby();
 		}catch (IOException e){
-			e.printStackTrace();
+			quit();
 		}
+	}
+
+	private void goToLobby() {
+		state=Constants.STATE_LOBBY;
+		server.addToLobbyList(this);
+		
 	}
 
 	/**
@@ -346,9 +356,9 @@ public class Peer implements Runnable {
 		try{
 			out.write(Constants.Protocol.SEND_GAME_OVER + " " + draw + "\n" );
 			out.flush();
-			state = Constants.STATE_LOBBY;
+			goToLobby();
 		}catch (IOException e){
-			e.printStackTrace();
+			quit();
 		}
 	}
 	
@@ -418,7 +428,6 @@ public class Peer implements Runnable {
 			System.out.println("Sending lobby chat:" + sb.toString());
 			out.flush();
 		}catch(IOException e){
-			e.printStackTrace();
 			quit();
 		}
 	}
@@ -432,8 +441,12 @@ public class Peer implements Runnable {
 			out.write(Constants.Protocol.SEND_ERROR_INVALIDNAME + " " + reason + "\n");
 			out.flush();
 		}catch(IOException e){
-			e.printStackTrace();
 			quit();
 		}
+	}
+
+	public String getOptions() {
+		String res = null;
+		return res;
 	}
 }
