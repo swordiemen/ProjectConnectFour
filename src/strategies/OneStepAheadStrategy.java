@@ -10,6 +10,9 @@ import model.Game;
 public class OneStepAheadStrategy implements Strategy {
 	public String name;
 	
+	/**
+	 * Creates a new OneStepAheadStrategy.
+	 */
 	public OneStepAheadStrategy(){
 		name = "OSA!";
 	}
@@ -44,8 +47,6 @@ public class OneStepAheadStrategy implements Strategy {
 				}
 			}
 		}
-//		System.out.println(cols.toString());
-//		System.out.println(cols.size() == 0);
 //		winningsCols empty? => check if otherWinningCols is 0. If otherWinningCols is empty, return a random column which isn't empty.
 //		winningsCols nonEmpty => we can win, get a random one from the list of winning columns.
 //		otherWinningCols nonEmpty => the other player can win, get a random one from the list of the other's winning columns.

@@ -11,6 +11,9 @@ import javax.swing.JOptionPane;
 public class ClientGUI extends JFrame{
 	private static final long serialVersionUID = -4411033752001988794L;
 
+	/**
+	 * Creates a new ClientGUI.
+	 */
 	public ClientGUI() {
 		initializeGUI();
 		setTitle("Connect Four Client");
@@ -18,6 +21,9 @@ public class ClientGUI extends JFrame{
 		setSize(new Dimension(500, 450));
 	}
 
+	/**
+	 * Initializes the GUI.
+	 */
 	private void initializeGUI() {
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -34,6 +40,11 @@ public class ClientGUI extends JFrame{
 		});
 	}
 
+	/**
+	 * Displays a window, where the user can enter the InetAddress of the server it wants
+	 * to connect to.
+	 * @return The InetAddress the user gave as input.
+	 */
 	public InetAddress askForIP() {
 		InetAddress address = null;
 		while (address == null) {
@@ -54,6 +65,11 @@ public class ClientGUI extends JFrame{
 		return address;
 	}
 
+	
+	/**
+	 * Displays a window, where the user can enter the port of the Server.
+	 * @return The port the user gave as input.
+	 */
 	public int askForPortNumber() {
 		int port = -1;
 		while (port == -1) {
@@ -74,6 +90,10 @@ public class ClientGUI extends JFrame{
 		return port;
 	}
 
+	/**
+	 * Displays a window, where the users can input his name.
+	 * @return The name the user gave as input.
+	 */
 	public String askForName() {
 		String name = "";
 		while (name.equals("")) {

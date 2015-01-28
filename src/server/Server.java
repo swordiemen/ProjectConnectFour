@@ -144,19 +144,19 @@ public class Server implements Runnable {
 	public void sendLobbyChat(String[] splitOutput, String sender) {
 		for(Peer p : peerList){
 			if(p.getState().equals(Constants.STATE_LOBBY)){
-				p.sendLobbyChat(splitOutput, sender);
+				p.sendChat(splitOutput, sender, false);
 			}
 		}
 	}
 	
-	public boolean isValidName(String name){
+	public boolean isValidName(String name, Peer peer){
 		if(name.contains(" ")){
-			System.out.println("Spatie");
+			System.out.println("Er staat een spatie in de naam.");
 			return false;
 		}else{
 			if(peerList.size() > 0){
 				for(Peer p : peerList){
-					if(p.getName().equals(name)){
+					if(p.getName().equals(name) && p != peer){
 						System.out.println("Bestaat al");
 						return false;
 					}
@@ -164,6 +164,15 @@ public class Server implements Runnable {
 			}
 		}
 		return true;
+	}
+
+	public void sendDirectedChat(String name, String message) {
+		String[] msg = message.split(" ");
+		for(Peer p : peerList){
+			if(p.getName().equals(name)){
+				p.sendChat(msg, "[Server]", true);
+			}
+		}
 	}
 
 } // end of class Server

@@ -62,7 +62,7 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 //	}
 
 	/**
-	 * Starts a new <code>Lobby</code>.
+	 * Updates the Lobby.
 	 */
 	public void run(){
 		if(msg != null){
@@ -194,7 +194,8 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		if(showLeaderBoardButton.equals(source)){
-			displayError("Leaderboards zijn nog niet gemaakt.");
+			//displayError("Leaderboards zijn nog niet gemaakt.");
+			chatboxPane.setText(client.isChallenged() + "");
 			//TODO leaderboards.
 		}else if(playButton.equals(source)){
 			chatboxPane.setText(chatboxPane.getText() + "[Server] Searching for someone for you to play with...\n");
@@ -237,14 +238,14 @@ public class Lobby extends JFrame implements ActionListener, Runnable{
 
 	/**
 	 * This method is called when the <code>Client</code> receives a chat message from the <code>Server</code>.
-	 * It will then be displayed in this <code>Lobby1</code>'s <code>chatboxPane</code>.
+	 * It will then be displayed in this <code>Lobby</code>'s <code>chatboxPane</code>.
 	 * @param sender The sender of the chat message.
 	 * @param msg The chat message of the sender.
 	 */
 	public void receivedChat(String sender, String[] msgArray){
 		StringBuilder sb = new StringBuilder();
 		for(int i = 1; i < msgArray.length; i++){
-			sb.append(" " + msgArray[i]);
+			sb.append(msgArray[i] + " ");
 		}
 		msg = sb.toString();
 		SwingUtilities.invokeLater(this);

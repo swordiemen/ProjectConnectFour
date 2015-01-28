@@ -10,6 +10,9 @@ import model.Game;
 public class LosingStrategy implements Strategy {
 	private String name;
 
+	/**
+	 * Creates a new LosingStrategy.
+	 */
 	public LosingStrategy() {
 		name = "Losing";
 	}
@@ -49,8 +52,6 @@ public class LosingStrategy implements Strategy {
 				cols.add(i);
 			}
 		}
-//		System.out.println(cols.toString());
-//		System.out.println(cols.size() == 0);
 		res = cols.size() == 0 ? new RandomStrategy().determineMove(g) : cols.get(r.nextInt(cols.size()));
 		return res;
 	}

@@ -21,10 +21,18 @@ import model.Player;
 public class ClientApplication {
 	private ClientGUI gui;
 	private JFrame frame;
+	
+	/**
+	 * Creates a new ClientApplication.
+	 * @param guiArg The ClientGUI this ClientApplication should use.
+	 */
 	public ClientApplication(ClientGUI guiArg){
 		gui = guiArg;
 	}
 
+	/**
+	 * Initializes all the variables, by asking for them in a window.
+	 */
 	public void startUp() {
 		int ai = JOptionPane.showOptionDialog(gui, "Choose your player type",
 				"Player type", JOptionPane.OK_OPTION,
@@ -49,6 +57,11 @@ public class ClientApplication {
 			break;
 		}
 	}
+	
+	/**
+	 * Creates a new Client, given a name.
+	 * @param name The name of the Client.
+	 */
 	public void createClient(String name){
 		int port = -1;
 		Client client;
@@ -58,6 +71,12 @@ public class ClientApplication {
 		Thread a = new Thread(client);
 		a.start();
 	}
+	
+	/**
+	 * Creates and starts a local Game.
+	 * @param name1 The name of the first player.
+	 * @param name2 THe name of the second player.
+	 */
 	public void startLocalGame(String name1, String name2){
 		ArrayList<Player> players = new ArrayList<Player>();
 		players.add(new Player(name1));
@@ -72,17 +91,23 @@ public class ClientApplication {
 		frame.setSize(933, 800);
 		frame.setVisible(true);
 	}
+	
+	/**
+	 * Creates and starts a new AIGame.
+	 * @param name The name of the human player.
+	 * @param AILevel The difficulty of the AI.
+	 */
 	public void startAIGame(String name, int AILevel){
 		ArrayList<Player> players = new ArrayList<Player>();
 		players.add(new Player(name));
 		ComputerPlayer AI = null;
 		switch(AILevel){
 		case 0:
-			AI= new ComputerPlayer(new RandomStrategy());
+			AI = new ComputerPlayer(new RandomStrategy());
 		case 1:
-			AI= new ComputerPlayer(new OneStepAheadStrategy());
+			AI = new ComputerPlayer(new OneStepAheadStrategy());
 		case 2:
-			AI= new ComputerPlayer(new PerfectStrategy());
+			AI = new ComputerPlayer(new PerfectStrategy());
 		}
 		players.add(AI);
 		Game game = new AIGame(players);
@@ -94,6 +119,7 @@ public class ClientApplication {
 		frame.setSize(933, 800);
 		frame.setVisible(true);
 	}
+
 	public static void main(String[] args){
 		ClientApplication a =  new ClientApplication (new ClientGUI());
 		a.startUp();

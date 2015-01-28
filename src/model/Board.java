@@ -14,6 +14,11 @@ public class Board {
 		this(Constants.ROWS, Constants.COLUMNS);
 	}
 
+	/**
+	 * Creates a new Board with a specified row and column.
+	 * @param r The row.
+	 * @param c The column.
+	 */
 	public Board(int r, int c){
 		row = r;
 		col = c;
@@ -84,6 +89,11 @@ public class Board {
 		}
 	}
 
+	/**
+	 * Gets the next empty field where a disc would be in, in a specified column.
+	 * @param c The column to check.
+	 * @return The index of the first (from below) empty field. -1 if there is none.
+	 */
 	public int getNextEntryInColumn(int c){
 		int res = -1;
 		for(int r = row - 1; r >= 0; r--){
@@ -382,22 +392,45 @@ public class Board {
 		return res;
 	}
 
+	/**
+	 * Returns the row given a index.
+	 * @param i The index.
+	 * @return The row corresponding to the index.
+	 */
 	public int getRowByIndex(int i){
 		return i / col;
 	}
 
+	/**
+	 * Returns the column given a index.
+	 * @param i The index.
+	 * @return The column corresponding to the index.
+	 */
 	public int getColByIndex(int i){
 		return i % col;
 	}
 
+	/**
+	 * Returns the amount of rows in this Board.
+	 * @return The amount of rows.
+	 */
 	public int getRow() {
 		return row;
 	}
 
+	/**
+	 * Returns the amount of columns in this Board.
+	 * @return The amount of columns.
+	 */
 	public int getCol() {
 		return col;
 	}	
 	
+	/**
+	 * Checks if a specified column is full. i.e. whether getNextEntryInColumn returns -1.
+	 * @param c The column to check.
+	 * @return Whether the column is full.
+	 */
 	public boolean isFullColumn(int c){
 		return getNextEntryInColumn(c) == -1;
 	}

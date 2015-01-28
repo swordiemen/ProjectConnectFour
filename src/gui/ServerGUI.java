@@ -20,6 +20,9 @@ public class ServerGUI extends JFrame{
 	private JButton[] playerList;	
 	private int port;
 	
+	/**
+	 * Creates a new ServerGUI.
+	 */
 	public ServerGUI(){
 		initializeGUI();
 		setTitle("Server Port");
@@ -27,6 +30,9 @@ public class ServerGUI extends JFrame{
 		setSize(new Dimension(500, 450));
 	}
 
+	/**
+	 * Initializes the GUI.
+	 */
 	private void initializeGUI() {
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -43,6 +49,11 @@ public class ServerGUI extends JFrame{
 		});
 		
 	}
+	
+	/**
+	 * Displays a window where the Server should listen to.
+	 * @return
+	 */
 	public int askForServerPort(){
 		int port = -1;
 		while (port == -1) {

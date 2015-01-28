@@ -6,14 +6,12 @@ import model.Game;
 import model.Mark;
 
 public class PerfectStrategy implements Strategy {
-
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+	String name;
+	
+	public PerfectStrategy() {
+		name = "Perfect";
 	}
-
-	@Override
+	
 	public int determineMove(Game g) {
 		return determineBoth(g.getBoard(), g.getCurrent())[1];
 	}
@@ -53,6 +51,12 @@ public class PerfectStrategy implements Strategy {
 			}
 		}
 		return qual;
+	}
+
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 }

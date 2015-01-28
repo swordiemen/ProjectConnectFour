@@ -24,6 +24,10 @@ public enum Mark {
 		
 	}
 
+	/**
+	 * Returns a Color based on the current Mark.
+	 * @return The Color based on the current Mark.
+	 */
 	public Color toColor(){
 		Color color = null;
 		//TODO: make it a switch
@@ -46,6 +50,11 @@ public enum Mark {
 		return color;
 	}
 
+	/**
+	 * Returns a Mark, given a String.
+	 * @param s The String of a Mark.
+	 * @return The Mark corresponding to the String.
+	 */
 	public Mark getMarkByString(String s){
 		Mark res = null;
 		if(s.equals("RED") || s.equals("red") || s.equals("Red")){

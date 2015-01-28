@@ -54,7 +54,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 		private Client client;
 		
 		/**
-		 * Creates a gameController with a specified game.
+		 * Creates a gameController with a specified Game.
 		 * @param argGame The game the controller has.
 		 */
 		public GameController(Game argGame){
@@ -64,6 +64,11 @@ public class GameGui extends Container implements Observer, ActionListener {
 			}
 		}
 		
+		/**
+		 * Creates a gameController with a specified Game and Client.
+		 * @param argGame The game the controller has.
+		 * @param c The Client of this Game.
+		 */
 		public GameController(Game argGame, Client c){
 			this(argGame);
 			client = c;
@@ -105,6 +110,10 @@ public class GameGui extends Container implements Observer, ActionListener {
 			return game;
 		}
 
+		/**
+		 * Returns the Client of this controller.
+		 * @return The client of this controller.
+		 */
 		public Client getClient() {
 			return client;
 		}
@@ -130,6 +139,12 @@ public class GameGui extends Container implements Observer, ActionListener {
 		this(g, m, null);
 	}
 	
+	/**
+	 * Creates a connect-four GUI for online play (board is only enabled if it is your turn).
+	 * @param g The <code>Game</code> the gui is created with.
+	 * @param m The <code>Mark</code> which belongs to the player.
+	 * @param c The <code>Client</code>.
+	 */
 	public GameGui(Game g, Mark m, Client c){
 		setUp();
 		ownMark = m;
@@ -236,12 +251,12 @@ public class GameGui extends Container implements Observer, ActionListener {
 		return playerList;
 	}
 	
+	/**
+	 * Adds a player to this playerList.
+	 * @param p The player to be added.
+	 */
 	public void addPlayer(Player p){
 		playerList.add(p);
-	}
-
-	public static synchronized void run(){
-		//TODO?
 	}
 
 	@Override
@@ -265,10 +280,18 @@ public class GameGui extends Container implements Observer, ActionListener {
 		}
 	}
 	
+	/**
+	 * Checks if it is the Client's turn. If this is an offline game, always returns true.
+	 * @return If it is the Client's turn.
+	 */
 	public boolean isMyTurn(){
-		return getOwnMark() == gc.getGame().getCurrent() || getOwnMark() == null; // true als ik aan de beurt ben of het een offline spel is																		  // dus getOwnMark() == null
+		return getOwnMark() == gc.getGame().getCurrent() ||isOfflineGame(); // true als ik aan de beurt ben of het een offline spel is																		  // dus getOwnMark() == null
 	}
 	
+	/**
+	 * Checks if this Game is offline.
+	 * @return whether this Game is offline.
+	 */
 	public boolean isOfflineGame(){
 		return getOwnMark() == null;
 	}

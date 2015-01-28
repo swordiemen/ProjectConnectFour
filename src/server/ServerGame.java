@@ -7,6 +7,10 @@ import model.*;
 public class ServerGame extends Game {
 	private ArrayList<Peer> peers;
 	
+	/**
+	 * Creates a new ServerGame with a list of Peers.
+	 * @param ps The list of Peers that are going to be in this ServerGame.
+	 */
 	public ServerGame(ArrayList<Peer> ps) {
 		super();
 		System.out.println("Game wordt aangemaakt");
@@ -19,6 +23,11 @@ public class ServerGame extends Game {
 		}
 	}
 
+	/**
+	 * Creates an ArrayList of Players, given a ArrayList of Peers.
+	 * @param ps The list of Peers.
+	 * @return The List of Players.
+	 */
 	public static ArrayList<Player> createPlayerList(ArrayList<Peer> ps) {
 		ArrayList<Player> res = new ArrayList<Player>();
 		for(Peer p : ps){
@@ -28,20 +37,15 @@ public class ServerGame extends Game {
 	}
 
 	/**
-	 * invokes the sendMove method in this class, and sends the move to the board.
-	 * @param x the x-coordinate of the move
-	 * @param y the y-coordinate of the move
-	 * @throws FalseMoveException 
+	 * Takes a turn in this board, and if it's legal, sends the move to the players in the Game.
+	 * @param column The column of the move.
+	 * @throws FalseMoveException Thrown if the move is illegal.
 	 */
-	//@ requires x >= 0 && x <= 8;
-	//@ requires y >= 0 && y <= 8;
-
-
-	public void takeTurn(int collumn) {
+	public void takeTurn(int column) {
 		try{
-			super.takeTurn(collumn);
+			super.takeTurn(column);
 			for (Peer p:peers){
-				p.sendMove(collumn);
+				p.sendMove(column);
 			}
 		}catch(FalseMoveException e){
 			e.printStackTrace();
@@ -69,14 +73,19 @@ public class ServerGame extends Game {
 	}
 
 		/**
-		 * invokes the isFull method in class Board from the getBoard method from the superclass Game
-		 * @return
+		 * Checks if the board is full.
+		 * @return Whether the board is full.
 		 */
 		public boolean done(){
 			return super.getBoard().isFull();
 		}
+		
+		//TODO halp
+		/**
+		 * Ends the game.
+		 * @param p The peer.
+		 */
 		public void endGame(Peer p){
-
 			for (Peer peer: peers){
 				if(!peer.equals(p)){
 					peer.quit(peer);
