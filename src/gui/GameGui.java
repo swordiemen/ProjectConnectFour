@@ -5,6 +5,7 @@ import constants.Constants;
 import model.*;
 import strategies.*;
 
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.GridLayout;
@@ -34,16 +35,16 @@ public class GameGui extends Container implements Observer, ActionListener {
 	ArrayList<Player> playerList = new ArrayList<Player>();
 	JButton[] fields;
 	JButton quitButton;
-	JButton restartButton;
+	JButton restartAndHintButton;
 	JLabel turnLabel;
 	GameController gc;
 	Mark ownMark;
-		
+
 	//GameController-------------------------------------------------------------------------------------------------------------------------------
 	class GameController implements ActionListener {
 		private Game game;
 		private Client client;
-		
+
 		/**
 		 * Creates a gameController with a specified Game.
 		 * @param argGame The game the controller has.
@@ -54,7 +55,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 				fields[i].addActionListener(this);
 			}
 		}
-		
+
 		/**
 		 * Creates a gameController with a specified Game and Client.
 		 * @param argGame The game the controller has.
@@ -64,7 +65,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 			this(argGame);
 			client = c;
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Object source = e.getSource();
@@ -72,10 +73,10 @@ public class GameGui extends Container implements Observer, ActionListener {
 				if(fields[i].equals(source)){
 					try {
 						//if(game.getBoard().deepCopy().isFullColumn(getCol(i))){ // Superfluous?
-							System.out.println("HA");
-							game.takeTurn(getCol(i));
+						System.out.println("HA");
+						game.takeTurn(getCol(i));
 						//}
-						
+
 					} catch (FalseMoveException e1) {
 						// Should never happen, as the client doesn't allow invalid moves.
 						e1.printStackTrace();
@@ -83,7 +84,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 				}
 			}
 		}
-	
+
 		/**
 		 * Returns the column by a given index.
 		 * @param i The index.
@@ -92,7 +93,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 		public int getCol(int i){
 			return i % COLUMNS;
 		}
-		
+
 		/**
 		 * Returns the game of this controller.
 		 * @return game The game.
@@ -108,11 +109,11 @@ public class GameGui extends Container implements Observer, ActionListener {
 		public Client getClient() {
 			return client;
 		}
-	
+
 	}
 	//End game controller -------------------------------------------------------------------------------------------------------------------------------
-	
-	
+
+
 	/**
 	 * Creates a connect-four gui for offline play.
 	 * @param g The game the gui is created with.
@@ -120,7 +121,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 	public GameGui(Game g){
 		this(g, null);
 	}
-	
+
 	/**
 	 * Creates a connect-four gui for online play (board is only enabled if it is your turn).
 	 * @param g The <code>Game</code> the gui is created with.
@@ -129,7 +130,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 	public GameGui(Game g, Mark m){
 		this(g, m, null);
 	}
-	
+
 	/**
 	 * Creates a connect-four GUI for online play (board is only enabled if it is your turn).
 	 * @param g The <code>Game</code> the gui is created with.
@@ -140,9 +141,11 @@ public class GameGui extends Container implements Observer, ActionListener {
 		setUp();
 		ownMark = m;
 		gc = new GameController(g, c);
-		
+		if(!isOfflineGame()){
+			restartAndHintButton.setText("Show a hint");
+		}
 	}
-	
+
 	/**
 	 * Returns the mark of the player (client).
 	 * @return
@@ -150,7 +153,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 	public Mark getOwnMark(){
 		return ownMark;
 	}
-	
+
 	/**
 	 * Returns the <code>GameController</code> of this <code>gameGui</code>.
 	 * @return gc The GameController.
@@ -158,7 +161,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 	public GameController getGameController(){
 		return gc;
 	}
-	
+
 	/**
 	 * Sets up the gui of this <code>GameGui</code>.
 	 */
@@ -176,18 +179,18 @@ public class GameGui extends Container implements Observer, ActionListener {
 			board.add(fields[i]);
 		}
 		quitButton =  new JButton(isOfflineGame() ? "Quit (disconnect)" : "Return to lobby");
-		restartButton = new JButton("Restart game");
+		restartAndHintButton = new JButton("Restart game");
 		BoxLayout mainLayout = new BoxLayout(this, BoxLayout.Y_AXIS);
 		this.setLayout(mainLayout);
 		this.add(board);
 		this.add(turnLabel);		
 		this.add(quitButton);
-		this.add(restartButton);
+		this.add(restartAndHintButton);
 		quitButton.addActionListener(this);
-		restartButton.addActionListener(this);
+		restartAndHintButton.addActionListener(this);
 		setBounds(20, 20, 933, 800);
 	}
-	
+
 	@Override
 	public void update(Observable o, Object arg0) {
 		Game g = (Game) o;
@@ -208,15 +211,16 @@ public class GameGui extends Container implements Observer, ActionListener {
 					}else{
 						fields[winFields[j]].setBackground(Constants.DARK_YELLOW);
 					}
-					
+
 				}
 			}
 		}else{
+			restartAndHintButton.setEnabled(isMyTurn());
 			turnLabel.setText("It is " + g.getPlayers().get(g.getCurrent()).getName() + " (" + g.getCurrent() + ") " + "'s turn.");
 		}
 		//turnLabel.setIcon(new ImageIcon(bi));;
 	}
-	
+
 	public static void main(String[] args){
 		Game game = new Game();
 		GameGui gameGui = new GameGui(game);
@@ -230,9 +234,9 @@ public class GameGui extends Container implements Observer, ActionListener {
 		frame.add(gameGui);
 		frame.setSize(933, 800);
 		frame.setVisible(true);
-		
+
 	}
-	
+
 	/**
 	 * Returns the list of players.
 	 * @return <code>playerList</code> The list of players.
@@ -240,7 +244,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 	public ArrayList<Player> getPlayerList(){
 		return playerList;
 	}
-	
+
 	/**
 	 * Adds a player to this playerList.
 	 * @param p The player to be added.
@@ -258,18 +262,19 @@ public class GameGui extends Container implements Observer, ActionListener {
 			}else{
 				gc.getClient().quitGame();
 			}
-		}else if(restartButton.equals(source)){
+		}else if(restartAndHintButton.equals(source)){
 			if(isOfflineGame()){
 				ArrayList<Player> players = (ArrayList<Player>) gc.getGame().getPlayerList();
 				gc.getGame().reset(players);
 				gc.getGame().start();
 			}else{
-				gc.getClient().quitGame();
-				gc.getClient().playAgain();
+				Color grey = Color.GRAY;
+				fields[gc.getGame().getBoard().getNextEntryInColumn(new OneStepAheadStrategy().determineMove(gc.getGame()))].setBackground(grey);
+				restartAndHintButton.setEnabled(false);
 			}
 		}
 	}
-	
+
 	/**
 	 * Checks if it is the Client's turn. If this is an offline game, always returns true.
 	 * @return If it is the Client's turn.
@@ -277,7 +282,7 @@ public class GameGui extends Container implements Observer, ActionListener {
 	public boolean isMyTurn(){
 		return getOwnMark() == gc.getGame().getCurrent() ||isOfflineGame(); // true als ik aan de beurt ben of het een offline spel is																		  // dus getOwnMark() == null
 	}
-	
+
 	/**
 	 * Checks if this Game is offline.
 	 * @return whether this Game is offline.

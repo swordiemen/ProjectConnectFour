@@ -6,11 +6,13 @@ import model.*;
 
 public class ServerGame extends Game {
 	private ArrayList<Peer> peers;
-	
+	//@ private invariant peers != null && peers.size() >= 0;
+
 	/**
 	 * Creates a new ServerGame with a list of Peers.
 	 * @param ps The list of Peers that are going to be in this ServerGame.
 	 */
+	//@ requires ps != null;
 	public ServerGame(ArrayList<Peer> ps) {
 		super();
 		System.out.println("Game wordt aangemaakt");
@@ -28,6 +30,7 @@ public class ServerGame extends Game {
 	 * @param ps The list of Peers.
 	 * @return The List of Players.
 	 */
+	//@ requires ps != null;
 	public static ArrayList<Player> createPlayerList(ArrayList<Peer> ps) {
 		ArrayList<Player> res = new ArrayList<Player>();
 		for(Peer p : ps){
@@ -41,6 +44,7 @@ public class ServerGame extends Game {
 	 * @param column The column of the move.
 	 * @throws FalseMoveException Thrown if the move is illegal.
 	 */
+	//@ requries column > 0 && column < Constants.COLUMNS;
 	public void takeTurn(int column) {
 		try{
 			super.takeTurn(column);
@@ -58,12 +62,6 @@ public class ServerGame extends Game {
 				if(super.getWinner() != null){
 					Mark winner = super.getWinner();
 					String winnerName = super.getPlayers().get(winner).getName();
-					String hue = "{";
-					for(Mark en : super.getPlayers().keySet()){
-						hue = hue + "Mark " + en + ", name " + super.getPlayers().get(en).getName() + "| ";
-					}
-					hue = hue + "}";
-					System.out.println(hue);
 					p.endGame(false, winnerName);
 				}else{
 					p.endGame(true);
@@ -72,25 +70,25 @@ public class ServerGame extends Game {
 		}
 	}
 
-		/**
-		 * Checks if the board is full.
-		 * @return Whether the board is full.
-		 */
-		public boolean done(){
-			return super.getBoard().isFull();
-		}
-		
-		//TODO halp
-		/**
-		 * Ends the game.
-		 * @param p The peer.
-		 */
-		public void endGame(Peer p){
-			for (Peer peer: peers){
-				if(!peer.equals(p)){
-					peer.quit(peer);
-				}
-			}
-
-		}
+	/**
+	 * Checks if the board is full.
+	 * @return Whether the board is full.
+	 */
+	/*@ pure @*/public boolean done(){
+		return super.getBoard().isFull();
 	}
+
+	/**
+	 * Ends the game.
+	 * @param p The peer the game ended against with.
+	 */
+	//@ requires p != null;
+	public void endGame(Peer p){
+		for (Peer peer: peers){
+			if(!peer.equals(p)){
+				peer.quit(peer);
+			}
+		}
+
+	}
+}

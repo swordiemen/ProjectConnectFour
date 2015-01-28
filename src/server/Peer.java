@@ -31,6 +31,13 @@ public class Peer implements Runnable {
 	private String state;
 	private Boolean exit = false;
 	private Peer inChallenge;
+	//@ protected invariant name !+ null;
+	//@ protected invariant sock != null;
+	//@ protected invariant in != null
+	//@ protected invariant out != null;
+	//@ protected invariant server != null;
+	//@ protected invariant game != null;
+	//@ private invariant state != null;
 
 	/*
 	 * @ requires (nameArg != null) && (sockArg != null);
@@ -155,6 +162,8 @@ public class Peer implements Runnable {
 	 * Sets the name of this Peer.
 	 * @param argName The new Peer's name.
 	 */
+	//@ requires argName != null;
+	//@ ensures getName().equals(argName);
 	private void setName(String argName) {
 		this.name = argName;
 	}
@@ -163,8 +172,8 @@ public class Peer implements Runnable {
 	 * Sends a move to the Client which is approved by the Server.
 	 * @param column The column the move is made.
 	 */
+	//@ requires column > 0 && column < Constants.COLUMNS;
 	public void sendMove(int column) {
-		System.out.println("Make Move");
 		try {
 			out.write(Constants.Protocol.MAKE_MOVE + " " + column + "\n");
 			out.flush();
@@ -177,6 +186,8 @@ public class Peer implements Runnable {
 	 * Sets this Peer's Game.
 	 * @param argGame The new Game.
 	 */
+	//@ requires argGame != null;
+	//@ ensures getGame() == argGame();
 	public void setGame(ServerGame argGame) {
 		this.game = argGame;
 	}
@@ -185,19 +196,20 @@ public class Peer implements Runnable {
 	 * Returns the ServerGame of this Peer.
 	 * @return The ServerGame of this Peer.
 	 */
-	public ServerGame getGame() {
+	/*@ pure @*/public ServerGame getGame() {
 		return this.game;
 	}
 
 	/**
-	 * Quits a Game. If 
-	 * @param p The Peer that quit.
+	 * Quits a Game. The other Peer is then declared the winner.
+	 * @param p The Peer that stayed.
 	 */
+	//@ requires p != null;
 	public void quit(Peer p) {
 		try {
 			if (this.equals(p)) {
 				out.write(Constants.Protocol.SEND_GAME_OVER + " " + false + " "
-						+ p.getGame().getPlayers().get(p.getGame().getWinner()) + "\n");
+						+ p.getName() + "\n");
 				out.flush();
 			}
 
@@ -205,11 +217,13 @@ public class Peer implements Runnable {
 			quit();
 		}
 	}
-	
+
 	/**
 	 * This method is called when a challenge is accepted.
 	 * A new game will be created with the challenger and challenged.
 	 */
+	//@ ensures this.getState().equals("Constants.STATE_INGAME);
+	//@ ensures inChallenge() == false;
 	public void acceptChallenge(){
 		ArrayList<Peer> peers = new ArrayList<Peer>();
 		server.sendDirectedChat(inChallenge.getName(), this.getName() + " has accepted your challenge.");
@@ -219,20 +233,21 @@ public class Peer implements Runnable {
 		server.startNewGame(peers);
 		inChallenge = null;
 	}
-	
+
 	/**
 	 * Refuses a challenge.
 	 */
+	//@ ensures inChallenge == false;
 	public void refuseChallenge(){
 		server.sendDirectedChat(inChallenge.getName(), this.getName() + " has declined your challenge.");
 		inChallenge.challengeCancelled("Challenge refused.");
 		challengeCancelled("Challenge refused.");
 	}
-	
+
 	/** 
 	 * Returns name of the peer object 
 	 */
-	public String getName() {
+	/*@ pure @*/public String getName() {
 		return name;
 	}
 
@@ -243,7 +258,9 @@ public class Peer implements Runnable {
 	 *            An ArrayList of type Peer containing all Peers that will join
 	 *            the new Game
 	 */
-
+	//@ requires peers != null
+	//@ ensures (\forall(Peer p; !(server.getLobbyList().contains(p))));
+	//@ ensures (\forall(Peer p; p.getState().equals(Constants.STATE_INGAME)));
 	public void startGame(ArrayList<Peer> peers) {
 		server.removeFromLobbyList(this);
 		state = Constants.STATE_INGAME;
@@ -262,6 +279,7 @@ public class Peer implements Runnable {
 	 * Sends an updated playerList to the Client.
 	 * @param players
 	 */
+	//@ requires players != null;
 	public void sendUpdate(String players) {
 		players = players + "\n";
 		try {
@@ -272,12 +290,14 @@ public class Peer implements Runnable {
 		}
 	}
 
-	
+
 	/**
 	 * Sends a challenge to another client. 
 	 * Can only be done if that client isn't already challenging or challenged.
 	 * @param name The name of the client to be challenged.
 	 */
+	//@ requires name != null;
+	//@ ensures (\forall(Peer p; (p.getName().equals(name) && !p.inChallenge()) => p.inChallenge() == true;
 	public void sendChallenge(String name){
 		for (Peer p: server.getPeerList()){
 			if(p.getName().equals(name)){
@@ -289,13 +309,15 @@ public class Peer implements Runnable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Tells the client his challenge was cancelled.
 	 * @param reason The reason of the cancel.
 	 */
+	//@ requires reason != null;
+	//@ ensures this.inChallenge() == null;
 	public void challengeCancelled(String reason){
-		inChallenge = null; //TODO inChallenge is diegene die gelinkt is aan deze peer via een challenge?
+		inChallenge = null; 
 		try{
 			out.write(Constants.Protocol.SEND_CHALLENGE_CANCELLED + " " + reason + "\n");
 			out.flush();
@@ -303,19 +325,21 @@ public class Peer implements Runnable {
 			quit();
 		}
 	}
-	
+
 	/**
 	 * Checks if this Peer is in a challenge.
 	 * @return
 	 */
-	public boolean inChallenge(){
+	/*@ pure @*/public boolean inChallenge(){
 		return inChallenge != null;
 	}
-	
+
 	/**
 	 * Tells a client he has been challenged by p.getName().
 	 * @param p The Peer that challenged this Peer.
 	 */
+	//@ requires p != null;
+	//@ ensures this.inChallenge() == true;
 	public void challenged(Peer p){
 		inChallenge = p;
 		try{
@@ -331,6 +355,8 @@ public class Peer implements Runnable {
 	 * @param draw Whether it was a draw.
 	 * @param winner Who the winner was.
 	 */
+	//@ requires winner != null;
+	//@ ensures this.getState().equals(Constants.STATE_LOBBY);
 	public void endGame(Boolean draw, String winner) {
 		try{
 			out.write(Constants.Protocol.SEND_GAME_OVER + " " + draw + " " + 
@@ -342,16 +368,22 @@ public class Peer implements Runnable {
 		}
 	}
 
+	/**
+	 * Simulates this Peer going to a Lobby.
+	 */
+	//@ ensures this.getState().equals(Constants.STATE_LOBBY);
+	//@ ensures server.getLobbyList().contains(this);
 	private void goToLobby() {
-		state=Constants.STATE_LOBBY;
+		state = Constants.STATE_LOBBY;
 		server.addToLobbyList(this);
-		
+
 	}
 
 	/**
 	 * Tells the Client the game has ended.
 	 * @param draw Whether it was a draw.
 	 */
+	//@ ensures this.getState().equals(Constants.STATE_LOBBY);
 	public void endGame(Boolean draw) {
 		try{
 			out.write(Constants.Protocol.SEND_GAME_OVER + " " + draw + "\n" );
@@ -361,11 +393,12 @@ public class Peer implements Runnable {
 			quit();
 		}
 	}
-	
+
 	/**
 	 * This method is called when the Client says he's quitting. 
 	 * Removes this Peer from the server list of Peers, and closes all connections.
 	 */
+	//@ ensures !(server.getPlayerList(contains(this)));
 	public void quit(){
 		try{
 			exit = true;
@@ -382,7 +415,7 @@ public class Peer implements Runnable {
 	 * Returns the state of this Peer (Start, lobby, or in game).
 	 * @return The state of this Peer.
 	 */
-	public String getState(){
+	/*@ pure @*/public String getState(){
 		return state;
 	}
 
@@ -390,7 +423,7 @@ public class Peer implements Runnable {
 	 * Checks if this Peer supports challenging.
 	 * @return Whether this Peer supports challenging.
 	 */
-	public boolean isChallangable(){
+	/*@ pure @*/public boolean isChallangable(){
 		return canChallenge;
 	}
 
@@ -398,7 +431,7 @@ public class Peer implements Runnable {
 	 * Checks if this Peer supports leaderboards.
 	 * @return Whether this Peer supports leaderboards.
 	 */
-	public boolean isLeaderboardable(){
+	/*@ pure @*/public boolean isLeaderboardable(){
 		return canLeaderboard;
 	}
 
@@ -406,7 +439,7 @@ public class Peer implements Runnable {
 	 * Checks if this Peer supports chat.
 	 * @return Whether this Peer supports chat.
 	 */
-	public boolean isChattable(){
+	/*@ pure @*/public boolean isChattable(){
 		return canChat;
 	}
 
@@ -416,6 +449,9 @@ public class Peer implements Runnable {
 	 * @param sender The sender of the message.
 	 * @param fromDirected Whether this method was called from sendDirectedMessage().
 	 */
+	//@ requires splitOutput != null;
+	//@ requires splitOutput.length > 1;
+	//@ requires sender != null;
 	public void sendChat(String[] splitOutput, String sender, boolean fromDirected) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" " + sender + ":");
@@ -425,17 +461,17 @@ public class Peer implements Runnable {
 		}
 		try{
 			out.write(Constants.Protocol.SEND_CHAT + sb.toString() + "\n");
-			System.out.println("Sending lobby chat:" + sb.toString());
 			out.flush();
 		}catch(IOException e){
 			quit();
 		}
 	}
-	
+
 	/**
 	 * Sends an error to the client, saying his name is invalid.
 	 * @param reason
 	 */
+	//@ requires reason != null;
 	public void sendInvalidName(String reason){
 		try{
 			out.write(Constants.Protocol.SEND_ERROR_INVALIDNAME + " " + reason + "\n");
@@ -445,8 +481,9 @@ public class Peer implements Runnable {
 		}
 	}
 
-	public String getOptions() {
-		String res = null;
+	/*@ pure @*/public String getOptions() {
+		String res = "";
+		res = res + (canChat ? "1" : "0") + (canChallenge ? "1" : "0") + (canLeaderboard ? "1" : "0");
 		return res;
 	}
 }

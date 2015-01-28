@@ -109,7 +109,7 @@ public class Client implements Runnable {
 					}
 				}
 				if(inputWords[0].equals(Constants.Protocol.SEND_ERROR_INVALIDCOMMAND)){
-
+					displayError("We sent an invalid command");
 				}
 			}else{
 
@@ -179,13 +179,24 @@ public class Client implements Runnable {
 	 * @param inputNames
 	 */
 	public void sendUpdatePlayers(String[] inputNames) {
+		//We get player, option. However, we as client don't need to do anything with another client's options. So we skip them.
+		ArrayList<String> rawData = new ArrayList<String>();
+		for(String s : inputNames){
+			s.replace(",", "");
+			rawData.add(s);
+		}
 		ArrayList<String> playerList = new ArrayList<String>();
-		for (int i = 1; i < inputNames.length; i++) {
-			if (inputNames[i] != name) {
-				playerList.add(inputNames[i]);
-				System.out.println("Added " + inputNames[i]);
+		for(String nameOrOption : rawData){
+			if(rawData.indexOf(nameOrOption) % 2 == 1){
+				playerList.add(nameOrOption);
 			}
 		}
+//		for (int i = 1; i < inputNames.length; i++) {
+//			if (inputNames[i] != name) {
+//				playerList.add(inputNames[i]);
+//				System.out.println("Added " + inputNames[i]);
+//			}
+//		}
 		lobby.setPlayerList(playerList);
 	}
 
@@ -289,27 +300,17 @@ public class Client implements Runnable {
 	 */
 	public void createGame(String player1, String player2) {
 		game = new ClientGame(this);
-		ComputerPlayer player;
 		Mark ownMark;
-		
 		if (player1.equals(name)) {
 			ownMark = Mark.RED;
 			opponent = player2;
-			player = new ComputerPlayer(new PerfectStrategy());
 		} else {
 			ownMark = Mark.YELLOW;
 			opponent = player1;
-			player = new ComputerPlayer(new PerfectStrategy());
 		}
 		GameGui gameGui = new GameGui(game, ownMark, this);
-		if(player1.equals(name)){
-			gameGui.addPlayer(player);
-			gameGui.addPlayer(new HumanPlayer(player2));
-		}else{
-			gameGui.addPlayer(new HumanPlayer(player1));
-			gameGui.addPlayer(player);
-			
-		}
+		gameGui.addPlayer(new HumanPlayer(player1));
+		gameGui.addPlayer(new HumanPlayer(player2));
 		game.addObserver(gameGui);
 		game.reset(gameGui.getPlayerList());
 		game.start();
